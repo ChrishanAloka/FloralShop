@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import { orderService } from '../../services/orderService';
-import { formatPrice, formatDate, STATUS_LABELS } from '../../utils/helpers';
+import { useConfig } from '../../context/ConfigContext';
+import { formatDate, STATUS_LABELS } from '../../utils/helpers';
 import { Icon } from '../common/Icons';
 
 export default function AdminOrders() {
   const [orders, setOrders] = useState([]);
+  const { formatPrice } = useConfig();
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState('');
   const [updating, setUpdating] = useState(null);

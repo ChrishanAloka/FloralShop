@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { orderService } from '../services/orderService';
-import { formatPrice, formatDate, ORDER_STEPS, STATUS_LABELS } from '../utils/helpers';
+import { useConfig } from '../context/ConfigContext';
+import { formatDate, ORDER_STEPS, STATUS_LABELS } from '../utils/helpers';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { Icon } from '../components/common/Icons';
 import api from '../services/api';

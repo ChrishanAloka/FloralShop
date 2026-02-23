@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { formatPrice } from '../../utils/helpers';
+import { useConfig } from '../../context/ConfigContext';
 import { orderService } from '../../services/orderService';
 import { useAuth } from '../../context/AuthContext';
 import WhatsAppModal from '../common/WhatsAppModal';
@@ -7,6 +7,7 @@ import { Icon } from '../common/Icons';
 
 export default function CheckoutModal({ items, total, onClose, onSuccess, customBouquet = null }) {
   const { user, loginWithToken } = useAuth();
+  const { formatPrice } = useConfig();
   const [form, setForm] = useState({ name: user?.name || '', phone: user?.phone || '', note: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');

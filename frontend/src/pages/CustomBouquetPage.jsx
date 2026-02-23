@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { productService } from '../services/productService';
-import { formatPrice, parseDriveUrl } from '../utils/helpers';
+import { useConfig } from '../context/ConfigContext';
+import { parseDriveUrl } from '../utils/helpers';
 import CheckoutModal from '../components/shop/CheckoutModal';
 import Icon2 from '../assets/icon.png';
 
 export default function CustomBouquetPage() {
   const [flowers, setFlowers] = useState([]);
+  const { formatPrice } = useConfig();
   const [wrappers, setWrappers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedFlowers, setSelectedFlowers] = useState({}); // { productId: quantity }

@@ -1,9 +1,11 @@
-import { parseDriveUrl, formatPrice, CATEGORY_LABELS } from '../../utils/helpers';
+import { parseDriveUrl, CATEGORY_LABELS } from '../../utils/helpers';
 import { useCart } from '../../context/CartContext';
+import { useConfig } from '../../context/ConfigContext';
 import { Icon } from '../common/Icons';
 
 export default function ProductCard({ product }) {
   const { addItem, items } = useCart();
+  const { formatPrice } = useConfig();
   const cartItem = items.find(i => i.product._id === product._id);
   const outOfStock = product.quantity === 0;
 

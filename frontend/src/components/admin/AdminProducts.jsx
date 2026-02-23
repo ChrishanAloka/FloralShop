@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { productService } from '../../services/productService';
-import { formatPrice, CATEGORIES } from '../../utils/helpers';
+import { useConfig } from '../../context/ConfigContext';
+import { CATEGORIES } from '../../utils/helpers';
 import { Icon } from '../common/Icons';
 import { ImageUploader } from '../common/ImageUploader';
 
@@ -12,6 +13,7 @@ const empty = {
 
 export default function AdminProducts() {
   const [products, setProducts] = useState([]);
+  const { formatPrice, currencySymbol } = useConfig();
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editProduct, setEditProduct] = useState(null);
@@ -173,7 +175,7 @@ export default function AdminProducts() {
                       </select>
                     </div>
                     <div className="col-md-3">
-                      <label className="form-label fw-semibold" style={{ fontSize: '0.85rem' }}>Price ($) *</label>
+                      <label className="form-label fw-semibold" style={{ fontSize: '0.85rem' }}>Price ({currencySymbol}) *</label>
                       <input className="form-control" type="number" step="0.01" min="0" required
                         value={form.price} onChange={e => setForm({ ...form, price: e.target.value })} />
                     </div>

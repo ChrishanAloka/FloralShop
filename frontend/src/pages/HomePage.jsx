@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 import { productService } from '../services/productService';
 import ProductCard from '../components/shop/ProductCard';
 import { Icon } from '../components/common/Icons';
-import { formatPrice } from '../utils/helpers';
 import HeroImage from '../assets/herosection1.jpg';
 import Logo from '../assets/logo.png';
 import Icon2 from '../assets/icon.png';

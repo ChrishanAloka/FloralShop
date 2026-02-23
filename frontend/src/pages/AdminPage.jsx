@@ -1,15 +1,17 @@
 import { useEffect, useState } from 'react';
 import { Link, Navigate, NavLink, Routes, Route, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useConfig } from '../context/ConfigContext';
 import api from '../services/api';
 import AdminOrders from '../components/admin/AdminOrders';
 import AdminProducts from '../components/admin/AdminProducts';
-import { formatPrice } from '../utils/helpers';
+import AdminSettings from '../components/admin/AdminSettings';
 import { Icon } from '../components/common/Icons';
 import Logo from '../assets/logo.png';
 
 function DashboardHome() {
   const [stats, setStats] = useState(null);
+  const { formatPrice } = useConfig();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -85,6 +87,7 @@ function Sidebar({ onClose }) {
     { to: '/admin', label: 'Dashboard', icon: <Icon.Grid size={17} />, end: true },
     { to: '/admin/orders', label: 'Orders', icon: <Icon.Package size={17} /> },
     { to: '/admin/products', label: 'Products', icon: <Icon.Flower size={17} /> },
+    { to: '/admin/settings', label: 'Settings', icon: <Icon.ShieldCheck size={17} /> },
   ];
 
   return (
@@ -170,6 +173,7 @@ export default function AdminPage() {
           <Route index element={<DashboardHome />} />
           <Route path="orders" element={<AdminOrders />} />
           <Route path="products" element={<AdminProducts />} />
+          <Route path="settings" element={<AdminSettings />} />
         </Routes>
       </div>
 
@@ -189,6 +193,7 @@ export default function AdminPage() {
           <Route index element={<DashboardHome />} />
           <Route path="orders" element={<AdminOrders />} />
           <Route path="products" element={<AdminProducts />} />
+          <Route path="settings" element={<AdminSettings />} />
         </Routes>
       </div>
     </div>

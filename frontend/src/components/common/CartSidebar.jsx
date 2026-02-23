@@ -1,5 +1,6 @@
 import { useCart } from '../../context/CartContext';
-import { formatPrice, parseDriveUrl } from '../../utils/helpers';
+import { useConfig } from '../../context/ConfigContext';
+import { parseDriveUrl } from '../../utils/helpers';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CheckoutModal from '../shop/CheckoutModal';
@@ -7,6 +8,7 @@ import { Icon } from './Icons';
 
 export default function CartSidebar({ show, onClose }) {
   const { items, removeItem, updateQty, total, clearCart } = useCart();
+  const { formatPrice } = useConfig();
   const [showCheckout, setShowCheckout] = useState(false);
   const navigate = useNavigate();
 

@@ -1,7 +1,14 @@
 import axios from 'axios';
 
+// In development: Vite proxy rewrites /api → http://localhost:5000/api
+// In production (Netlify): VITE_API_URL must point to your deployed backend
+//   e.g. https://your-backend.onrender.com
+const baseURL = import.meta.env.VITE_API_URL
+  ? `${import.meta.env.VITE_API_URL}/api`
+  : '/api';
+
 const api = axios.create({
-  baseURL: '/api',
+  baseURL,
   headers: { 'Content-Type': 'application/json' },
 });
 
@@ -16,7 +23,7 @@ api.interceptors.response.use(
   err => {
     if (err.response?.status === 401) {
       localStorage.removeItem('token');
-      window.location.href = '/';
+      window.location.href = '/login';
     }
     return Promise.reject(err);
   }
