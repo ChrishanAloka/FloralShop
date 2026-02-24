@@ -13,7 +13,11 @@ export default function AdminOrders() {
   const [expandedOrder, setExpandedOrder] = useState(null);
   const allStatuses = ['pending', 'confirmed', 'preparing', 'ready', 'delivered', 'cancelled'];
 
-  useEffect(() => { fetchOrders(); }, [filterStatus]);
+  useEffect(() => {
+    fetchOrders();
+    const interval = setInterval(fetchOrders, 10000); // Poll every 10 seconds
+    return () => clearInterval(interval);
+  }, [filterStatus]);
 
   const fetchOrders = () => {
     setLoading(true);

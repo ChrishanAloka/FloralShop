@@ -56,7 +56,7 @@ export default function ProfilePage() {
       };
 
       fetchOrders();
-      const interval = setInterval(fetchOrders, 30000); // Polling every 30 seconds
+      const interval = setInterval(fetchOrders, 10000); // Polling every 10 seconds
       return () => clearInterval(interval);
     }
   }, [user]);
