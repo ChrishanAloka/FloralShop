@@ -105,7 +105,7 @@ export default function NotificationBell() {
                                 >
                                     <div className="d-flex gap-2 align-items-start">
                                         <div style={{ marginTop: '3px' }}>
-                                            {n.type === 'order' && <Icon.Bag size={14} color="var(--rose)" />}
+                                            {n.type === 'order' && <Icon.Package size={14} color="var(--rose)" />}
                                             {n.type === 'status' && <Icon.Refresh size={14} color="#3d6b38" />}
                                             {n.type === 'product' && <Icon.Flower size={14} color="#d4637a" />}
                                         </div>

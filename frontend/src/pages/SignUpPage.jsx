@@ -161,7 +161,7 @@ export default function SignUpPage() {
                             </span>
                             <input className="form-control" type="password" required value={form.password}
                                 onChange={e => setForm({ ...form, password: e.target.value })}
-                                placeholder="••••••••"
+                                placeholder="password"
                                 style={{ borderLeft: 'none' }} />
                         </div>
                         <p className="mt-1" style={{ fontSize: '0.72rem', color: 'var(--text-light)' }}>

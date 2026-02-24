@@ -1,5 +1,5 @@
 // All icons are hand-crafted inline SVGs — no icon fonts, no image files needed.
-// Usage: <Icon.Bag size={20} color="currentColor" />
+// Usage: <Icon.Package size={20} color="currentColor" />
 
 const svg = (path, viewBox = '0 0 24 24') => ({
     size = 20,

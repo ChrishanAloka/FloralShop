@@ -60,7 +60,7 @@ export default function NotificationsPage() {
                                         background: n.isRead ? 'var(--ivory)' : 'var(--blush-light)',
                                         display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
                                     }}>
-                                        {n.type === 'order' && <Icon.Bag size={20} color="var(--rose)" />}
+                                        {n.type === 'order' && <Icon.Package size={20} color="var(--rose)" />}
                                         {n.type === 'status' && <Icon.Refresh size={20} color="#3d6b38" />}
                                         {n.type === 'product' && <Icon.Flower size={20} color="#d4637a" />}
                                         {!['order', 'status', 'product'].includes(n.type) && <Icon.Bell size={20} color="var(--text-mid)" />}
