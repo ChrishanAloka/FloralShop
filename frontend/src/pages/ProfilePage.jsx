@@ -26,6 +26,7 @@ function OrderTimeline({ status }) {
 
 export default function ProfilePage() {
   const { user, loading, logout } = useAuth();
+  const { formatPrice } = useConfig();
   const [orders, setOrders] = useState([]);
   const [ordersLoading, setOrdersLoading] = useState(true);
   const [editing, setEditing] = useState(false);
