@@ -11,18 +11,18 @@ export const NotificationProvider = ({ children }) => {
     const [loading, setLoading] = useState(false);
     const [pagination, setPagination] = useState({ current: 1, total: 1, totalItems: 0 });
 
+    // Track current active page to prevent poller from resetting user to Page 1
+    const [activePage, setActivePage] = useState(1);
+
     const fetchNotifications = useCallback(async (page = 1) => {
         if (!user) return;
         setLoading(true);
         try {
             const res = await api.get(`/notifications?page=${page}&limit=10`);
-            if (page === 1) {
-                setNotifications(res.data.notifications);
-            } else {
-                setNotifications(prev => [...prev, ...res.data.notifications]);
-            }
+            setNotifications(res.data.notifications);
             setUnreadCount(res.data.pagination.unreadCount);
             setPagination(res.data.pagination);
+            setActivePage(page);
         } catch (err) {
             console.error('Failed to fetch notifications:', err);
         } finally {
@@ -32,15 +32,29 @@ export const NotificationProvider = ({ children }) => {
 
     useEffect(() => {
         if (user) {
-            fetchNotifications();
+            fetchNotifications(activePage);
             // Polling every 10 seconds
-            const interval = setInterval(() => fetchNotifications(), 10000);
+            const interval = setInterval(async () => {
+                try {
+                    // Always refresh unread count, but only update the list if on page 1
+                    // This prevents jarring jumps when reading history but keeps the bell updated
+                    const res = await api.get(`/notifications?page=${activePage}&limit=10`);
+                    setUnreadCount(res.data.pagination.unreadCount);
+                    if (activePage === 1) {
+                        setNotifications(res.data.notifications);
+                    }
+                    setPagination(res.data.pagination);
+                } catch (err) {
+                    console.error('Polling error:', err);
+                }
+            }, 10000);
             return () => clearInterval(interval);
         } else {
             setNotifications([]);
             setUnreadCount(0);
+            setActivePage(1);
         }
-    }, [user, fetchNotifications]);
+    }, [user, activePage, fetchNotifications]);
 
     const markAsRead = async (id) => {
         try {
