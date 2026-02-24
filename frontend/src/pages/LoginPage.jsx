@@ -3,11 +3,13 @@ import { useNavigate, Link } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../context/AuthContext';
 import { Icon } from '../components/common/Icons';
+import { COUNTRY_CODES } from '../utils/countryCodes';
 import api from '../services/api';
 
 export default function LoginPage() {
   const [mode, setMode] = useState('customer');
   const [form, setForm] = useState({ identifier: '', phone: '', password: '' });
+  const [countryCode, setCountryCode] = useState('+94');
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState('');
@@ -19,9 +21,19 @@ export default function LoginPage() {
     setLoading(true); setError('');
     try {
       const endpoint = mode === 'admin' ? '/auth/admin-login' : '/auth/customer-login';
+
+      let finalIdentifier = form.identifier;
+      if (mode === 'customer' && form.identifier && !form.identifier.includes('@')) {
+        // If it doesn't look like an email and doesn't have a prefix, prepend the chosen country code
+        if (!form.identifier.startsWith('+')) {
+          finalIdentifier = `${countryCode}${form.identifier}`;
+        }
+      }
+
+      const fullPhone = form.phone.startsWith('+') ? form.phone : `${countryCode}${form.phone}`;
       const payload = mode === 'admin'
-        ? { phone: form.phone, password: form.password }
-        : { identifier: form.identifier, password: form.password };
+        ? { phone: fullPhone, password: form.password }
+        : { identifier: finalIdentifier, password: form.password };
       const res = await api.post(endpoint, payload);
       loginWithToken(res.data.token, res.data.user);
       navigate(mode === 'admin' ? '/admin' : '/profile');
@@ -105,7 +117,7 @@ export default function LoginPage() {
                   <span style={{ color: 'var(--text-mid)', fontSize: '0.88rem', fontWeight: 500 }}>Signing in with Google...</span>
                 </div>
               ) : (
-                <div>
+                <div className="w-100 d-flex justify-content-center">
                   <GoogleLogin
                     onSuccess={handleGoogleSuccess}
                     onError={handleGoogleError}
@@ -134,26 +146,51 @@ export default function LoginPage() {
             <div className="mb-3">
               <label className="form-label" style={{ fontSize: '0.85rem', fontWeight: 600 }}>Phone Number</label>
               <div className="input-group">
-                <span className="input-group-text" style={{ background: 'var(--blush-light)', border: '1.5px solid var(--champagne)', borderRight: 'none' }}>
-                  <Icon.Phone size={16} color="var(--petal)" />
-                </span>
+                <select
+                  className="form-select"
+                  style={{ maxWidth: '100px', borderRight: 'none', borderTopRightRadius: 0, borderBottomRightRadius: 0, fontSize: '0.85rem', paddingRight: 5 }}
+                  value={countryCode}
+                  onChange={e => setCountryCode(e.target.value)}
+                >
+                  {COUNTRY_CODES.map(c => (
+                    <option key={c.code} value={c.code}>{c.flag} {c.code}</option>
+                  ))}
+                </select>
                 <input className="form-control" type="tel" value={form.phone}
                   onChange={e => setForm({ ...form, phone: e.target.value })}
-                  placeholder="+1..."
-                  style={{ borderLeft: 'none' }} />
+                  placeholder="771234567"
+                  style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }} />
               </div>
             </div>
           ) : (
             <div className="mb-3">
               <label className="form-label" style={{ fontSize: '0.85rem', fontWeight: 600 }}>Phone or Email</label>
               <div className="input-group">
-                <span className="input-group-text" style={{ background: 'var(--blush-light)', border: '1.5px solid var(--champagne)', borderRight: 'none' }}>
-                  <Icon.Person size={16} color="var(--petal)" />
-                </span>
+                {!form.identifier.includes('@') && (
+                  <select
+                    className="form-select"
+                    style={{ maxWidth: '90px', borderRight: 'none', borderTopRightRadius: 0, borderBottomRightRadius: 0, fontSize: '0.8rem', paddingRight: 4, paddingLeft: 8 }}
+                    value={countryCode}
+                    onChange={e => setCountryCode(e.target.value)}
+                  >
+                    {COUNTRY_CODES.map(c => (
+                      <option key={c.code} value={c.code}>{c.flag} {c.code}</option>
+                    ))}
+                  </select>
+                )}
+                {form.identifier.includes('@') && (
+                  <span className="input-group-text" style={{ background: 'var(--blush-light)', border: '1.5px solid var(--champagne)', borderRight: 'none' }}>
+                    <Icon.Person size={16} color="var(--petal)" />
+                  </span>
+                )}
                 <input className="form-control" type="text" value={form.identifier}
                   onChange={e => setForm({ ...form, identifier: e.target.value })}
                   placeholder="Phone or email"
-                  style={{ borderLeft: 'none' }} />
+                  style={{
+                    borderLeft: form.identifier.includes('@') ? 'none' : '1.5px solid var(--champagne)',
+                    borderTopLeftRadius: form.identifier.includes('@') ? '0' : 'var(--radius-sm)',
+                    borderBottomLeftRadius: form.identifier.includes('@') ? '0' : 'var(--radius-sm)'
+                  }} />
               </div>
             </div>
           )}

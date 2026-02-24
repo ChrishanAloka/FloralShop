@@ -160,6 +160,10 @@ export const Icon = {
     ChevronDown: svg(
         <polyline points="6 9 12 15 18 9" />
     ),
+    // Bell / notification
+    Bell: svg(
+        <><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></>
+    ),
     // Plus
     Plus: svg(
         <><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></>

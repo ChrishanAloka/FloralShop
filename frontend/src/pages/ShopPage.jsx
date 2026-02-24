@@ -11,6 +11,7 @@ export default function ShopPage() {
   const [search, setSearch] = useState('');
   const [searchParams, setSearchParams] = useSearchParams();
   const activeCategory = searchParams.get('category') || 'all';
+  const [previewImage, setPreviewImage] = useState(null);
 
   useEffect(() => {
     setLoading(true);
@@ -81,12 +82,24 @@ export default function ShopPage() {
           <div className="row g-4">
             {filtered.map(product => (
               <div key={product._id} className="col-6 col-md-4 col-lg-3">
-                <ProductCard product={product} />
+                <ProductCard product={product} onPreview={setPreviewImage} />
               </div>
             ))}
           </div>
         )}
       </div>
+
+      {/* Image Preview Modal */}
+      {previewImage && (
+        <div className="image-preview-overlay" onClick={() => setPreviewImage(null)}>
+          <div className="image-preview-content" onClick={e => e.stopPropagation()}>
+            <button className="image-preview-close" onClick={() => setPreviewImage(null)}>
+              <i className="bi bi-x-lg"></i>
+            </button>
+            <img src={previewImage} alt="Preview" />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

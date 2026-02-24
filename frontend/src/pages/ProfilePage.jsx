@@ -5,6 +5,7 @@ import { useConfig } from '../context/ConfigContext';
 import { formatDate, ORDER_STEPS, STATUS_LABELS } from '../utils/helpers';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { Icon } from '../components/common/Icons';
+import { COUNTRY_CODES } from '../utils/countryCodes';
 import api from '../services/api';
 
 function StatusBadge({ status }) {
@@ -31,13 +32,21 @@ export default function ProfilePage() {
   const [ordersLoading, setOrdersLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [editForm, setEditForm] = useState({ name: '', phone: '' });
+  const [editCountryCode, setEditCountryCode] = useState('+94');
   const [updateLoading, setUpdateLoading] = useState(false);
   const { loginWithToken } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (user) {
-      setEditForm({ name: user.name, phone: user.phone || '' });
+      const phoneNum = user.phone || '';
+      const matched = COUNTRY_CODES.find(c => phoneNum.startsWith(c.code));
+      if (matched) {
+        setEditForm({ name: user.name, phone: phoneNum.replace(matched.code, '') });
+        setEditCountryCode(matched.code);
+      } else {
+        setEditForm({ name: user.name, phone: phoneNum });
+      }
       orderService.getMyOrders()
         .then(res => setOrders(res.data))
         .catch(() => { })
@@ -54,7 +63,8 @@ export default function ProfilePage() {
     e.preventDefault();
     setUpdateLoading(true);
     try {
-      const res = await api.put('/auth/profile', editForm);
+      const fullPhone = editForm.phone ? (editForm.phone.startsWith('+') ? editForm.phone : `${editCountryCode}${editForm.phone}`) : '';
+      const res = await api.put('/auth/profile', { ...editForm, phone: fullPhone });
       loginWithToken(localStorage.getItem('token'), res.data.user);
       setEditing(false);
     } catch (err) {
@@ -181,7 +191,19 @@ export default function ProfilePage() {
                   </div>
                   <div className="col-md-6">
                     <label className="form-label" style={{ fontSize: '0.85rem', fontWeight: 600 }}>Phone Number</label>
-                    <input className="form-control" value={editForm.phone} onChange={e => setEditForm({ ...editForm, phone: e.target.value })} placeholder="+1234567890" />
+                    <div className="input-group">
+                      <select
+                        className="form-select"
+                        style={{ maxWidth: '85px', borderRight: 'none', borderTopRightRadius: 0, borderBottomRightRadius: 0, fontSize: '0.8rem', paddingRight: 4, paddingLeft: 8 }}
+                        value={editCountryCode}
+                        onChange={e => setEditCountryCode(e.target.value)}
+                      >
+                        {COUNTRY_CODES.map(c => (
+                          <option key={c.code} value={c.code}>{c.flag} {c.code}</option>
+                        ))}
+                      </select>
+                      <input className="form-control" value={editForm.phone} onChange={e => setEditForm({ ...editForm, phone: e.target.value })} placeholder="771234567" style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }} />
+                    </div>
                   </div>
                   <div className="col-12 d-flex gap-2">
                     <button className="btn btn-primary" type="submit" disabled={updateLoading}>

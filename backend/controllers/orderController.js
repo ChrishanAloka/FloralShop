@@ -2,6 +2,7 @@ import Order from '../models/Order.js';
 import Product from '../models/Product.js';
 import User from '../models/User.js';
 import dotenv from 'dotenv';
+import { createNotification, notifyAdmins } from './notificationController.js';
 dotenv.config();
 
 const buildWhatsAppMessage = (order) => {
@@ -115,6 +116,22 @@ export const createOrder = async (req, res) => {
       token,
       customerId: customer._id,
     });
+
+    // Create notifications
+    createNotification({
+      recipient: customer._id,
+      title: 'Order Placed! 🌸',
+      message: `Your order #${order._id.toString().slice(-6).toUpperCase()} has been received and is being processed.`,
+      type: 'order',
+      link: '/profile'
+    });
+
+    notifyAdmins({
+      title: 'New Order Received',
+      message: `${customerName} placed a new order (#${order._id.toString().slice(-6).toUpperCase()}) for ${order.totalAmount.toFixed(2)}.`,
+      type: 'order',
+      link: '/admin'
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: err.message });
@@ -145,6 +162,23 @@ export const updateOrderStatus = async (req, res) => {
     order.status = status;
     order.statusHistory.push({ status, note: note || '' });
     await order.save();
+
+    // Create notifications for status update
+    createNotification({
+      recipient: order.customer,
+      title: 'Order Status Updated',
+      message: `Your order #${order._id.toString().slice(-6).toUpperCase()} is now ${status.toUpperCase()}${note ? ': ' + note : ''}.`,
+      type: 'status',
+      link: '/profile'
+    });
+
+    notifyAdmins({
+      title: 'Order Status Changed',
+      message: `Order #${order._id.toString().slice(-6).toUpperCase()} was updated to ${status.toUpperCase()}.`,
+      type: 'status',
+      link: '/admin'
+    });
+
     res.json(order);
   } catch (err) { res.status(500).json({ message: err.message }); }
 };

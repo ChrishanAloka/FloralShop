@@ -4,11 +4,25 @@ import { orderService } from '../../services/orderService';
 import { useAuth } from '../../context/AuthContext';
 import WhatsAppModal from '../common/WhatsAppModal';
 import { Icon } from '../common/Icons';
+import { COUNTRY_CODES } from '../../utils/countryCodes';
 
 export default function CheckoutModal({ items, total, onClose, onSuccess, customBouquet = null }) {
   const { user, loginWithToken } = useAuth();
   const { formatPrice } = useConfig();
-  const [form, setForm] = useState({ name: user?.name || '', phone: user?.phone || '', note: '' });
+
+  // Parse phone and country code from user data
+  const getInitialPhone = () => {
+    if (!user?.phone) return { phone: '', code: '+94' };
+    const matched = COUNTRY_CODES.find(c => user.phone.startsWith(c.code));
+    if (matched) {
+      return { phone: user.phone.replace(matched.code, ''), code: matched.code };
+    }
+    return { phone: user.phone, code: '+94' };
+  };
+
+  const initial = getInitialPhone();
+  const [form, setForm] = useState({ name: user?.name || '', phone: initial.phone, note: '' });
+  const [countryCode, setCountryCode] = useState(initial.code);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [waResult, setWaResult] = useState(null);
@@ -18,10 +32,11 @@ export default function CheckoutModal({ items, total, onClose, onSuccess, custom
     if (!form.name || !form.phone) { setError('Name and phone are required'); return; }
     setLoading(true); setError('');
     try {
+      const fullPhone = form.phone.startsWith('+') ? form.phone : `${countryCode}${form.phone}`;
       const orderData = customBouquet
-        ? { customerName: form.name, customerPhone: form.phone, orderType: 'custom-bouquet', customBouquet, deliveryNote: form.note }
+        ? { customerName: form.name, customerPhone: fullPhone, orderType: 'custom-bouquet', customBouquet, deliveryNote: form.note }
         : {
-          customerName: form.name, customerPhone: form.phone, orderType: 'standard',
+          customerName: form.name, customerPhone: fullPhone, orderType: 'standard',
           deliveryNote: form.note,
           items: items.map(({ product, quantity }) => ({ product: product._id, name: product.name, price: product.price, quantity, imageUrl: product.imageUrl })),
         };
@@ -49,13 +64,23 @@ export default function CheckoutModal({ items, total, onClose, onSuccess, custom
     <div className="modal show d-block" tabIndex="-1" style={{ background: 'rgba(58,37,53,0.4)', backdropFilter: 'blur(4px)', zIndex: 1100 }}>
       <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div className="modal-content border-0 shadow-lg" style={{ borderRadius: 'var(--radius)' }}>
-          <div className="modal-header" style={{ background: 'var(--blush-light)', border: 'none', borderRadius: 'var(--radius) var(--radius) 0 0', padding: '1.2rem 1.5rem' }}>
+          <div className="modal-header d-flex align-items-center justify-content-between" style={{ background: 'var(--blush-light)', border: 'none', borderRadius: 'var(--radius) var(--radius) 0 0', padding: '1.2rem 1.5rem' }}>
             <div className="d-flex align-items-center gap-2">
               <Icon.BagCheck size={22} color="var(--rose)" />
               <h5 className="modal-title mb-0" style={{ fontFamily: 'var(--font-display)', color: 'var(--text-dark)' }}>Complete Your Order</h5>
             </div>
-            <button onClick={onClose} style={{ width: 30, height: 30, borderRadius: '50%', border: '1.5px solid var(--champagne)', background: 'var(--white)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--text-mid)' }}>
-              <Icon.X size={14} />
+            <button
+              onClick={onClose}
+              style={{
+                width: 32, height: 32, borderRadius: '50%',
+                border: '1.5px solid var(--champagne)', background: 'var(--white)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer', color: 'var(--text-mid)', transition: 'all 0.2s'
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'var(--rose)'; e.currentTarget.style.color = 'white'; e.currentTarget.style.borderColor = 'var(--rose)'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'var(--white)'; e.currentTarget.style.color = 'var(--text-mid)'; e.currentTarget.style.borderColor = 'var(--champagne)'; }}
+            >
+              <Icon.X size={16} />
             </button>
           </div>
 
@@ -109,10 +134,17 @@ export default function CheckoutModal({ items, total, onClose, onSuccess, custom
                   Phone Number *
                 </label>
                 <div className="input-group">
-                  <span className="input-group-text" style={{ background: 'var(--blush-light)', border: '1.5px solid var(--champagne)', borderRight: 'none' }}>
-                    <Icon.Phone size={15} color="var(--petal)" />
-                  </span>
-                  <input className="form-control" type="tel" value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} placeholder="+1 234 567 8900" style={{ borderLeft: 'none' }} />
+                  <select
+                    className="form-select"
+                    style={{ maxWidth: '85px', borderRight: 'none', borderTopRightRadius: 0, borderBottomRightRadius: 0, fontSize: '0.8rem', paddingRight: 4, paddingLeft: 8 }}
+                    value={countryCode}
+                    onChange={e => setCountryCode(e.target.value)}
+                  >
+                    {COUNTRY_CODES.map(c => (
+                      <option key={c.code} value={c.code}>{c.flag} {c.code}</option>
+                    ))}
+                  </select>
+                  <input className="form-control" type="tel" value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} placeholder="771234567" style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }} />
                 </div>
                 {user?.avatar && !user.phone && (
                   <div className="form-text d-flex align-items-center gap-1" style={{ color: 'var(--rose)', fontSize: '0.75rem' }}>

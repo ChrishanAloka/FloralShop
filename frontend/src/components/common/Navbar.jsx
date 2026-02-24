@@ -3,6 +3,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { useState } from 'react';
 import CartSidebar from './CartSidebar';
+import NotificationBell from './NotificationBell';
 import { Icon } from './Icons';
 import Logo from '../../assets/logo.png';
 
@@ -12,6 +13,7 @@ export default function Navbar() {
   const navigate = useNavigate();
   const [showCart, setShowCart] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -38,6 +40,7 @@ export default function Navbar() {
 
             {/* Right controls */}
             <div className="d-flex align-items-center gap-2">
+              {user && <NotificationBell />}
               {/* Cart button */}
               <button
                 className="nav-icon-btn position-relative"
@@ -63,8 +66,8 @@ export default function Navbar() {
                   {/* Profile dropdown */}
                   <div className="dropdown">
                     <button
-                      className="dropdown-toggle border-0"
-                      data-bs-toggle="dropdown"
+                      className={`toggle border-0 ${userMenuOpen ? 'show' : ''}`}
+                      onClick={() => setUserMenuOpen(!userMenuOpen)}
                       style={{
                         display: 'flex', alignItems: 'center', gap: '0.5rem',
                         background: 'var(--white)', border: '1.5px solid var(--champagne)',
@@ -81,48 +84,44 @@ export default function Navbar() {
                         </span>
                       )}
                       <span className="d-none d-sm-inline">{user.name.split(' ')[0]}</span>
-                      <Icon.ChevronDown size={14} color="var(--text-light)" />
+                      <Icon.ChevronDown size={14} color="var(--text-light)" style={{ transform: userMenuOpen ? 'rotate(0deg)' : 'rotate(-90deg)', transition: 'transform 0.2s' }} />
                     </button>
 
-                    <ul className="dropdown-menu dropdown-menu-end shadow" style={{ minWidth: 210, borderRadius: 12, border: '1px solid var(--champagne)', marginTop: 6 }}>
-                      <li className="px-3 py-2" style={{ borderBottom: '1px solid var(--champagne)' }}>
+                    <ul className={`dropdown-menu dropdown-menu-end shadow border-0 ${userMenuOpen ? 'show' : ''}`}
+                      style={{
+                        display: userMenuOpen ? 'block' : 'none',
+                        minWidth: 210, borderRadius: 12, border: '1px solid var(--champagne)',
+                        marginTop: 10, position: 'absolute', right: 0
+                      }}>
+                      <div className="p-3" style={{ borderBottom: '1px solid rgba(212,99,122,0.1)' }}>
                         <div style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-dark)' }}>{user.name}</div>
-                        {user.email && <div style={{ fontSize: '0.75rem', color: 'var(--text-light)' }}>{user.email}</div>}
-                        {user.phone && <div style={{ fontSize: '0.75rem', color: 'var(--text-light)' }}>{user.phone}</div>}
-                      </li>
-                      {isAdmin ? (
-                        <li><Link className="dropdown-item d-flex align-items-center gap-2 py-2" to="/admin"><Icon.ShieldCheck size={16} color="var(--text-mid)" />Admin Panel</Link></li>
-                      ) : (
-                        <li><Link className="dropdown-item d-flex align-items-center gap-2 py-2" to="/profile"><Icon.BagCheck size={16} color="var(--text-mid)" />My Orders</Link></li>
+                        {user.email && <div style={{ fontSize: '0.75rem', color: 'var(--text-light)', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.email}</div>}
+                      </div>
+
+                      {isAdmin && (
+                        <li><Link className="dropdown-item d-flex align-items-center gap-2 py-2" to="/admin" onClick={() => setUserMenuOpen(false)}><Icon.ShieldCheck size={16} color="var(--text-mid)" />Admin Panel</Link></li>
                       )}
-                      <li><hr className="dropdown-divider my-1" /></li>
+                      <li><Link className="dropdown-item d-flex align-items-center gap-2 py-2" to="/profile" onClick={() => setUserMenuOpen(false)}><Icon.Person size={16} color="var(--text-mid)" />My Profile</Link></li>
+
+                      <li><hr className="dropdown-divider my-1" style={{ opacity: 0.1 }} /></li>
+
                       <li>
-                        <button className="dropdown-item d-flex align-items-center gap-2 py-2" onClick={handleLogout} style={{ color: 'var(--rose-deep)' }}>
+                        <button className="dropdown-item d-flex align-items-center gap-2 py-2" onClick={() => { setUserMenuOpen(false); handleLogout(); }} style={{ color: 'var(--rose-deep)' }}>
                           <Icon.Logout size={16} color="var(--rose-deep)" />
                           Sign Out
                         </button>
                       </li>
                     </ul>
+
+                    {/* Overlay to close menu when clicking outside */}
+                    {userMenuOpen && (
+                      <div
+                        style={{ position: 'fixed', inset: 0, zIndex: -1 }}
+                        onClick={() => setUserMenuOpen(false)}
+                      />
+                    )}
                   </div>
 
-                  {/* Standalone logout button — always visible for customers on desktop */}
-                  {!isAdmin && (
-                    <button
-                      onClick={handleLogout}
-                      title="Sign out"
-                      className="d-none d-lg-flex"
-                      style={{
-                        width: 36, height: 36, borderRadius: '50%',
-                        border: '1.5px solid #f8d7da', background: 'var(--white)',
-                        alignItems: 'center', justifyContent: 'center',
-                        cursor: 'pointer', transition: 'all 0.2s', color: 'var(--rose)',
-                      }}
-                      onMouseEnter={e => { e.currentTarget.style.background = 'var(--rose)'; e.currentTarget.style.color = 'white'; e.currentTarget.style.borderColor = 'var(--rose)'; }}
-                      onMouseLeave={e => { e.currentTarget.style.background = 'var(--white)'; e.currentTarget.style.color = 'var(--rose)'; e.currentTarget.style.borderColor = '#f8d7da'; }}
-                    >
-                      <Icon.Logout size={16} />
-                    </button>
-                  )}
                 </div>
               ) : (
                 <Link
@@ -158,8 +157,8 @@ export default function Navbar() {
               <div className="d-flex flex-column gap-1">
                 <NavLink className="nav-link" to="/shop" onClick={() => setMenuOpen(false)}>Shop</NavLink>
                 <NavLink className="nav-link" to="/custom-bouquet" onClick={() => setMenuOpen(false)}>Custom Bouquet</NavLink>
-                {user && !isAdmin && (
-                  <NavLink className="nav-link" to="/profile" onClick={() => setMenuOpen(false)}>My Orders</NavLink>
+                {user && (
+                  <NavLink className="nav-link" to="/profile" onClick={() => setMenuOpen(false)}>My Profile</NavLink>
                 )}
                 {user && (
                   <button

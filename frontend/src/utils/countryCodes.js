@@ -1,0 +1,17 @@
+export const COUNTRY_CODES = [
+    { code: '+94', name: 'Sri Lanka', flag: '🇱🇰' },
+    { code: '+1', name: 'USA/Canada', flag: '🇺🇸' },
+    { code: '+44', name: 'UK', flag: '🇬🇧' },
+    { code: '+61', name: 'Australia', flag: '🇦🇺' },
+    { code: '+91', name: 'India', flag: '🇮🇳' },
+    { code: '+971', name: 'UAE', flag: '🇦🇪' },
+    { code: '+65', name: 'Singapore', flag: '🇸🇬' },
+    { code: '+49', name: 'Germany', flag: '🇩🇪' },
+    { code: '+33', name: 'France', flag: '🇫🇷' },
+    { code: '+81', name: 'Japan', flag: '🇯🇵' },
+    { code: '+86', name: 'China', flag: '🇨🇳' },
+    { code: '+7', name: 'Russia', flag: '🇷🇺' },
+    { code: '+39', name: 'Italy', flag: '🇮🇹' },
+    { code: '+34', name: 'Spain', flag: '🇪🇸' },
+    { code: '+55', name: 'Brazil', flag: '🇧🇷' },
+];

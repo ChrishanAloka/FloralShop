@@ -10,6 +10,7 @@ export default function CartSidebar({ show, onClose }) {
   const { items, removeItem, updateQty, total, clearCart } = useCart();
   const { formatPrice } = useConfig();
   const [showCheckout, setShowCheckout] = useState(false);
+  const [previewImage, setPreviewImage] = useState(null);
   const navigate = useNavigate();
 
   const handleCheckoutSuccess = (result) => {
@@ -25,15 +26,16 @@ export default function CartSidebar({ show, onClose }) {
       {show && <div className="offcanvas-backdrop fade show" onClick={onClose} style={{ zIndex: 1044 }}></div>}
 
       <div className={`offcanvas offcanvas-end cart-offcanvas ${show ? 'show' : ''}`}
-        style={{ zIndex: 1045, visibility: show ? 'visible' : 'hidden', width: 'min(380px, 100vw)' }}>
+        style={{ zIndex: 1045, width: 'min(380px, 100vw)' }}>
 
-        <div className="offcanvas-header">
+        <div className="offcanvas-header d-flex align-items-center justify-content-between">
           <div className="d-flex align-items-center gap-2">
             <Icon.BagHeart size={20} color="var(--rose)" />
-            <h5 className="offcanvas-title mb-0">Your Basket</h5>
+            <h5 className="offcanvas-title mb-0" style={{ fontFamily: 'var(--font-display)', color: 'var(--text-dark)' }}>Your Basket</h5>
           </div>
           <button
             onClick={onClose}
+            className="btn-close-custom"
             style={{ width: 32, height: 32, borderRadius: '50%', border: '1.5px solid var(--champagne)', background: 'var(--white)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--text-mid)' }}
           >
             <Icon.X size={16} />
@@ -54,30 +56,40 @@ export default function CartSidebar({ show, onClose }) {
             </div>
           ) : (
             <>
-              <div className="flex-grow-1 overflow-auto">
+              <div className="flex-grow-1 overflow-auto pe-1">
                 {items.map(({ product, quantity }) => {
                   const imgSrc = parseDriveUrl(product.imageUrl) || imgFallback(product.name);
+                  const isLongName = product.name.length > 20;
+
                   return (
-                    <div key={product._id} className="cart-item d-flex align-items-center gap-3">
-                      <img src={imgSrc} alt={product.name} onError={e => e.target.src = imgFallback(product.name)} />
-                      <div className="flex-grow-1 min-w-0">
-                        <div style={{ fontWeight: 600, fontSize: '0.88rem', color: 'var(--text-dark)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{product.name}</div>
-                        <div style={{ color: 'var(--rose)', fontWeight: 700, fontSize: '0.85rem' }}>{formatPrice(product.price)}</div>
+                    <div key={product._id} className="cart-item d-flex align-items-center gap-2 py-3" style={{ borderBottom: '1px solid var(--champagne)' }}>
+                      <img
+                        src={imgSrc}
+                        alt={product.name}
+                        onClick={() => setPreviewImage(imgSrc)}
+                        onError={e => e.target.src = imgFallback(product.name)}
+                      />
+                      <div className="flex-grow-1 min-w-0" style={{ maxWidth: 140 }}>
+                        <div className="marquee-container" style={{ cursor: 'default' }}>
+                          <div className={`marquee-text ${isLongName ? 'should-animate' : ''}`} style={{ fontWeight: 600, fontSize: '0.88rem', color: 'var(--text-dark)' }}>
+                            {isLongName ? `${product.name} \u00A0\u00A0\u00A0 ${product.name} \u00A0\u00A0\u00A0 ` : product.name}
+                          </div>
+                        </div>
+                        <div style={{ color: 'var(--rose)', fontWeight: 700, fontSize: '0.82rem' }}>{formatPrice(product.price)}</div>
                       </div>
-                      <div className="d-flex align-items-center gap-1">
-                        <button className="qty-btn" onClick={() => updateQty(product._id, quantity - 1)}>
-                          <Icon.Minus size={12} />
+                      <div className="d-flex align-items-center border rounded-pill p-1 flex-shrink-0" style={{ background: 'var(--ivory)', scale: '0.9' }}>
+                        <button className="qty-btn" style={{ border: 'none' }} onClick={() => updateQty(product._id, quantity - 1)}>
+                          <Icon.Minus size={10} />
                         </button>
-                        <span className="qty-display">{quantity}</span>
-                        <button className="qty-btn" onClick={() => updateQty(product._id, quantity + 1)}>
-                          <Icon.Plus size={12} />
+                        <span className="qty-display" style={{ minWidth: '20px', fontSize: '0.85rem' }}>{quantity}</span>
+                        <button className="qty-btn" style={{ border: 'none' }} onClick={() => updateQty(product._id, quantity + 1)}>
+                          <Icon.Plus size={10} />
                         </button>
                       </div>
                       <button
                         onClick={() => removeItem(product._id)}
-                        style={{ width: 28, height: 28, borderRadius: '50%', border: '1px solid var(--champagne)', background: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--text-light)', flexShrink: 0 }}
-                        onMouseEnter={e => { e.currentTarget.style.background = '#f8d7da'; e.currentTarget.style.color = 'var(--rose)'; }}
-                        onMouseLeave={e => { e.currentTarget.style.background = 'none'; e.currentTarget.style.color = 'var(--text-light)'; }}
+                        className="btn-close-custom flex-shrink-0"
+                        style={{ width: 28, height: 28, borderRadius: '50%', border: '1px solid var(--champagne)', background: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--text-light)' }}
                       >
                         <Icon.X size={13} />
                       </button>
@@ -86,12 +98,12 @@ export default function CartSidebar({ show, onClose }) {
                 })}
               </div>
 
-              <div className="mt-auto pt-3" style={{ borderTop: '1px solid var(--champagne)' }}>
-                <div className="d-flex justify-content-between mb-3">
+              <div className="mt-auto pt-3" style={{ borderTop: '1.5px solid var(--champagne)' }}>
+                <div className="d-flex justify-content-between mb-3 px-1">
                   <span style={{ fontWeight: 600, fontFamily: 'var(--font-display)', fontSize: '1.1rem' }}>Total</span>
                   <span style={{ color: 'var(--rose)', fontWeight: 700, fontSize: '1.2rem' }}>{formatPrice(total)}</span>
                 </div>
-                <button className="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2" onClick={() => setShowCheckout(true)}>
+                <button className="btn btn-primary w-100 py-3 d-flex align-items-center justify-content-center gap-2" onClick={() => setShowCheckout(true)}>
                   <Icon.BagCheck size={18} color="white" />
                   Checkout
                 </button>
@@ -108,6 +120,18 @@ export default function CartSidebar({ show, onClose }) {
           onClose={() => setShowCheckout(false)}
           onSuccess={handleCheckoutSuccess}
         />
+      )}
+
+      {/* Image Preview Modal */}
+      {previewImage && (
+        <div className="image-preview-overlay" style={{ zIndex: 1100 }} onClick={() => setPreviewImage(null)}>
+          <div className="image-preview-content" onClick={e => e.stopPropagation()}>
+            <button className="image-preview-close" onClick={() => setPreviewImage(null)}>
+              <Icon.X size={20} />
+            </button>
+            <img src={previewImage} alt="Preview" />
+          </div>
+        </div>
       )}
     </>
   );

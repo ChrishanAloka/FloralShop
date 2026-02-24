@@ -3,10 +3,12 @@ import { useNavigate, Link } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../context/AuthContext';
 import { Icon } from '../components/common/Icons';
+import { COUNTRY_CODES } from '../utils/countryCodes';
 import api from '../services/api';
 
 export default function SignUpPage() {
     const [form, setForm] = useState({ name: '', phone: '', email: '', password: '' });
+    const [countryCode, setCountryCode] = useState('+94');
     const [loading, setLoading] = useState(false);
     const [googleLoading, setGoogleLoading] = useState(false);
     const [error, setError] = useState('');
@@ -17,7 +19,8 @@ export default function SignUpPage() {
         e.preventDefault();
         setLoading(true); setError('');
         try {
-            const res = await api.post('/auth/register-customer', form);
+            const fullPhone = form.phone ? (form.phone.startsWith('+') ? form.phone : `${countryCode}${form.phone}`) : '';
+            const res = await api.post('/auth/register-customer', { ...form, phone: fullPhone });
             loginWithToken(res.data.token, res.data.user);
             navigate('/profile');
         } catch (err) {
@@ -120,13 +123,20 @@ export default function SignUpPage() {
                         <div className="col-md-6 mb-3">
                             <label className="form-label" style={{ fontSize: '0.85rem', fontWeight: 600 }}>Phone Number</label>
                             <div className="input-group">
-                                <span className="input-group-text" style={{ background: 'var(--blush-light)', border: '1.5px solid var(--champagne)', borderRight: 'none' }}>
-                                    <Icon.Phone size={16} color="var(--petal)" />
-                                </span>
+                                <select
+                                    className="form-select"
+                                    style={{ maxWidth: '85px', borderRight: 'none', borderTopRightRadius: 0, borderBottomRightRadius: 0, fontSize: '0.8rem', paddingRight: 4, paddingLeft: 8 }}
+                                    value={countryCode}
+                                    onChange={e => setCountryCode(e.target.value)}
+                                >
+                                    {COUNTRY_CODES.map(c => (
+                                        <option key={c.code} value={c.code}>{c.flag} {c.code}</option>
+                                    ))}
+                                </select>
                                 <input className="form-control" type="tel" value={form.phone}
                                     onChange={e => setForm({ ...form, phone: e.target.value })}
-                                    placeholder="+1..."
-                                    style={{ borderLeft: 'none' }} />
+                                    placeholder="771234567"
+                                    style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }} />
                             </div>
                         </div>
                         <div className="col-md-6 mb-3">

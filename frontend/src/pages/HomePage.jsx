@@ -12,6 +12,7 @@ export default function HomePage() {
   const [signature, setSignature] = useState([]);
   const [occasions, setOccasions] = useState([]);
   const [freshFlowers, setFreshFlowers] = useState([]);
+  const [previewImage, setPreviewImage] = useState(null);
 
   useEffect(() => {
     productService.getAll({ available: true })
@@ -104,7 +105,7 @@ export default function HomePage() {
             <div className="row g-4">
               {featured.map((product, i) => (
                 <div key={product._id} className={`col-6 col-md-4 col-lg-3 reveal reveal-delay-${i + 1}`}>
-                  <ProductCard product={product} />
+                  <ProductCard product={product} onPreview={setPreviewImage} />
                 </div>
               ))}
             </div>
@@ -130,7 +131,7 @@ export default function HomePage() {
             <div className="row g-4">
               {signature.map((product, i) => (
                 <div key={product._id} className={`col-6 col-md-4 col-lg-3 reveal reveal-delay-${i + 1}`}>
-                  <ProductCard product={product} />
+                  <ProductCard product={product} onPreview={setPreviewImage} />
                 </div>
               ))}
             </div>
@@ -144,32 +145,6 @@ export default function HomePage() {
         </section>
       )}
 
-      {/* Fresh Flowers Collection */}
-      {/* {freshFlowers.length > 0 && (
-        <section className="py-5 reveal" style={{ background: 'var(--white)' }}>
-          <div className="container">
-            <div className="section-header">
-              <h2 style={{ textTransform: 'uppercase', letterSpacing: '0.05em' }}>Fresh Flowers Collection</h2>
-              <p>Hand-picked seasonal stems for every day</p>
-              <div className="section-divider"></div>
-            </div>
-            <div className="row g-4">
-              {freshFlowers.map((product, i) => (
-                <div key={product._id} className={`col-6 col-md-4 col-lg-3 reveal reveal-delay-${i + 1}`}>
-                  <ProductCard product={product} />
-                </div>
-              ))}
-            </div>
-            <div className="text-center mt-4 reveal">
-              <Link to="/shop?category=fresh-flowers" className="btn btn-outline-primary d-inline-flex align-items-center gap-2">
-                View All Fresh Flowers
-                <Icon.ArrowRight size={16} color="var(--rose)" />
-              </Link>
-            </div>
-          </div>
-        </section>
-      )} */}
-
       {/* Events Collection */}
       {occasions.length > 0 && (
         <section className="py-5 reveal" style={{ background: 'var(--ivory)' }}>
@@ -182,7 +157,7 @@ export default function HomePage() {
             <div className="row g-4">
               {occasions.map((product, i) => (
                 <div key={product._id} className={`col-6 col-md-4 col-lg-3 reveal reveal-delay-${i + 1}`}>
-                  <ProductCard product={product} />
+                  <ProductCard product={product} onPreview={setPreviewImage} />
                 </div>
               ))}
             </div>
@@ -242,6 +217,18 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Image Preview Modal */}
+      {previewImage && (
+        <div className="image-preview-overlay" onClick={() => setPreviewImage(null)}>
+          <div className="image-preview-content" onClick={e => e.stopPropagation()}>
+            <button className="image-preview-close" onClick={() => setPreviewImage(null)}>
+              <i className="bi bi-x-lg"></i>
+            </button>
+            <img src={previewImage} alt="Preview" />
+          </div>
+        </div>
+      )}
 
       {/* Footer */}
       <footer style={{ background: 'var(--text-dark)', color: 'rgba(255,255,255,0.7)', padding: '2rem 0', textAlign: 'center' }}>

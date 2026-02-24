@@ -6,6 +6,7 @@ import api from '../services/api';
 import AdminOrders from '../components/admin/AdminOrders';
 import AdminProducts from '../components/admin/AdminProducts';
 import AdminSettings from '../components/admin/AdminSettings';
+import NotificationBell from '../components/common/NotificationBell';
 import { Icon } from '../components/common/Icons';
 import Logo from '../assets/logo.png';
 
@@ -169,6 +170,9 @@ export default function AdminPage() {
 
       {/* Main content */}
       <div className="d-none d-lg-block" style={{ marginLeft: 220, flex: 1, background: 'var(--ivory)', padding: '1.5rem' }}>
+        <div className="d-flex justify-content-end mb-3">
+          <NotificationBell />
+        </div>
         <Routes>
           <Route index element={<DashboardHome />} />
           <Route path="orders" element={<AdminOrders />} />
@@ -179,6 +183,9 @@ export default function AdminPage() {
 
       {/* Mobile content */}
       <div className="d-lg-none" style={{ flex: 1, padding: '1rem', paddingTop: '4.5rem' }}>
+        <div className="d-flex justify-content-end mb-3 position-fixed" style={{ top: '1rem', right: '1rem', zIndex: 998 }}>
+          <NotificationBell />
+        </div>
         <button
           onClick={() => setSidebarOpen(true)}
           style={{

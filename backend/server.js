@@ -9,6 +9,7 @@ import bouquetRoutes from './routes/bouquetRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
 import configRoutes from './routes/configRoutes.js';
+import notificationRoutes from './routes/notificationRoutes.js';
 
 dotenv.config();
 
@@ -40,6 +41,7 @@ app.use('/api/bouquets', bouquetRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/config', configRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 

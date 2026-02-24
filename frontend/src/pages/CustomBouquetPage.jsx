@@ -10,10 +10,18 @@ export default function CustomBouquetPage() {
   const { formatPrice } = useConfig();
   const [wrappers, setWrappers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedFlowers, setSelectedFlowers] = useState({}); // { productId: quantity }
-  const [selectedWrapper, setSelectedWrapper] = useState(null);
-  const [note, setNote] = useState('');
+  const [selectedFlowers, setSelectedFlowers] = useState(() => {
+    const saved = localStorage.getItem('custom_bouquet_flowers');
+    return saved ? JSON.parse(saved) : {};
+  });
+  const [selectedWrapper, setSelectedWrapper] = useState(() => {
+    return localStorage.getItem('custom_bouquet_wrapper') || null;
+  });
+  const [note, setNote] = useState(() => {
+    return localStorage.getItem('custom_bouquet_note') || '';
+  });
   const [showCheckout, setShowCheckout] = useState(false);
+  const [previewImage, setPreviewImage] = useState(null);
 
   useEffect(() => {
     Promise.all([productService.getFreshFlowers(), productService.getWrappers()])
@@ -21,6 +29,19 @@ export default function CustomBouquetPage() {
       .catch(() => { })
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem('custom_bouquet_flowers', JSON.stringify(selectedFlowers));
+  }, [selectedFlowers]);
+
+  useEffect(() => {
+    if (selectedWrapper) localStorage.setItem('custom_bouquet_wrapper', selectedWrapper);
+    else localStorage.removeItem('custom_bouquet_wrapper');
+  }, [selectedWrapper]);
+
+  useEffect(() => {
+    localStorage.setItem('custom_bouquet_note', note);
+  }, [note]);
 
   const setFlowerQty = (productId, qty) => {
     setSelectedFlowers(prev => {
@@ -57,7 +78,23 @@ export default function CustomBouquetPage() {
     <div className="py-4" style={{ minHeight: '80vh' }}>
       <div className="container">
         <div className="section-header mb-4">
-          <h2><img src={Icon2} alt="Build Your Dream Bouquet Logo" style={{ height: '60px', width: 'auto', marginBottom: '0.8rem' }} /> Build Your Bouquet</h2>
+          <div className="d-flex align-items-center justify-content-between mb-2">
+            <h2><img src={Icon2} alt="Build Your Dream Bouquet Logo" style={{ height: '60px', width: 'auto', marginBottom: '0.8rem' }} /> Build Your Bouquet</h2>
+            {(totalFlowers > 0 || selectedWrapper || note) && (
+              <button
+                className="btn btn-outline-danger btn-sm rounded-pill px-3"
+                onClick={() => {
+                  if (window.confirm('Clear your current custom bouquet design?')) {
+                    setSelectedFlowers({});
+                    setSelectedWrapper(null);
+                    setNote('');
+                  }
+                }}
+              >
+                Clear Design
+              </button>
+            )}
+          </div>
           <p>Choose your flowers and wrapper to create a personalised arrangement</p>
           <div className="section-divider"></div>
         </div>
@@ -81,7 +118,13 @@ export default function CustomBouquetPage() {
                 const imgSrc = parseDriveUrl(flower.imageUrl) || `https://placehold.co/80x80/fdeef2/d4637a?text=${encodeURIComponent(flower.name[0])}`;
                 return (
                   <div key={flower._id} className={`flower-selector-item ${qty > 0 ? 'selected' : ''} ${outOfStock ? 'opacity-50' : ''}`}>
-                    <img src={imgSrc} alt={flower.name} onError={e => e.target.src = `https://placehold.co/80x80/fdeef2/d4637a?text=${encodeURIComponent(flower.name[0])}`} />
+                    <img
+                      src={imgSrc}
+                      alt={flower.name}
+                      className="zoom-trigger"
+                      onClick={() => setPreviewImage(imgSrc)}
+                      onError={e => e.target.src = `https://placehold.co/80x80/fdeef2/d4637a?text=${encodeURIComponent(flower.name[0])}`}
+                    />
                     <div className="flex-grow-1">
                       <div style={{ fontWeight: 600, color: 'var(--text-dark)', fontSize: '0.92rem' }}>{flower.name}</div>
                       <div style={{ color: 'var(--rose)', fontSize: '0.82rem', fontWeight: 600 }}>{formatPrice(flower.price)}/stem</div>
@@ -109,10 +152,21 @@ export default function CustomBouquetPage() {
                   {wrappers.map(wrapper => {
                     const imgSrc = parseDriveUrl(wrapper.imageUrl) || `https://placehold.co/120x120/fdeef2/d4637a?text=${encodeURIComponent(wrapper.name[0])}`;
                     return (
-                      <div key={wrapper._id} className={`wrapper-option ${selectedWrapper === wrapper._id ? 'selected' : ''}`}
-                        onClick={() => setSelectedWrapper(wrapper._id)}>
-                        <img src={imgSrc} alt={wrapper.name} onError={e => e.target.src = `https://placehold.co/120x120/fdeef2/d4637a?text=${encodeURIComponent(wrapper.name[0])}`} />
-                        <p>{wrapper.name}<br /><span style={{ color: 'var(--rose)', fontWeight: 600 }}>{formatPrice(wrapper.price)}</span></p>
+                      <div key={wrapper._id} className={`wrapper-option ${selectedWrapper === wrapper._id ? 'selected' : ''}`}>
+                        <img
+                          src={imgSrc}
+                          alt={wrapper.name}
+                          className="zoom-trigger"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setPreviewImage(imgSrc);
+                          }}
+                          onError={e => e.target.src = `https://placehold.co/120x120/fdeef2/d4637a?text=${encodeURIComponent(wrapper.name[0])}`}
+                        />
+                        <div className="p-2 text-center" style={{ cursor: 'pointer' }} onClick={() => setSelectedWrapper(wrapper._id)}>
+                          <p className="mb-0">{wrapper.name}</p>
+                          <span style={{ color: 'var(--rose)', fontWeight: 600, fontSize: '0.8rem' }}>{formatPrice(wrapper.price)}</span>
+                        </div>
                       </div>
                     );
                   })}
@@ -185,8 +239,24 @@ export default function CustomBouquetPage() {
           total={total}
           customBouquet={getCustomBouquetPayload()}
           onClose={() => setShowCheckout(false)}
-          onSuccess={() => { }}
+          onSuccess={() => {
+            setSelectedFlowers({});
+            setSelectedWrapper(null);
+            setNote('');
+          }}
         />
+      )}
+
+      {/* Image Preview Modal */}
+      {previewImage && (
+        <div className="image-preview-overlay" onClick={() => setPreviewImage(null)}>
+          <div className="image-preview-content" onClick={e => e.stopPropagation()}>
+            <button className="image-preview-close" onClick={() => setPreviewImage(null)}>
+              <i className="bi bi-x-lg"></i>
+            </button>
+            <img src={previewImage} alt="Preview" />
+          </div>
+        </div>
       )}
     </div>
   );

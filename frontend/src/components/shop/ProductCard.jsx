@@ -3,7 +3,7 @@ import { useCart } from '../../context/CartContext';
 import { useConfig } from '../../context/ConfigContext';
 import { Icon } from '../common/Icons';
 
-export default function ProductCard({ product }) {
+export default function ProductCard({ product, onPreview }) {
   const { addItem, items } = useCart();
   const { formatPrice } = useConfig();
   const cartItem = items.find(i => i.product._id === product._id);
@@ -19,12 +19,16 @@ export default function ProductCard({ product }) {
 
   return (
     <div className="bloom-card product-card h-100">
-      <div className="card-img-wrapper">
+      <div className="card-img-wrapper" onClick={() => onPreview && onPreview(imgSrc)}>
         <img
           src={imgSrc}
           alt={product.imageAlt || product.name}
+          className="zoom-trigger"
           onError={e => e.target.src = imgFallback}
         />
+        <div className="image-hover-overlay">
+          <i className="bi bi-zoom-in" style={{ fontSize: '1.5rem', color: 'white' }}></i>
+        </div>
         <span className="qty-badge">{product.quantity} left</span>
         {outOfStock && (
           <div className="out-of-stock-overlay">

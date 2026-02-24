@@ -1,4 +1,5 @@
 import Product from '../models/Product.js';
+import { notifyAll } from './notificationController.js';
 
 export const getProducts = async (req, res) => {
   try {
@@ -22,6 +23,14 @@ export const getProductById = async (req, res) => {
 export const createProduct = async (req, res) => {
   try {
     const product = await Product.create(req.body);
+
+    notifyAll({
+      title: 'New Product Available! 🌸',
+      message: `Exciting news! "${product.name}" is now available in our shop.`,
+      type: 'product',
+      link: '/shop'
+    });
+
     res.status(201).json(product);
   } catch (err) { res.status(400).json({ message: err.message }); }
 };
