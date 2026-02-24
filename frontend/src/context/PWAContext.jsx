@@ -21,9 +21,14 @@ export function PWAProvider({ children }) {
     });
 
     useEffect(() => {
+        if (window.deferredPrompt) {
+            setInstallPrompt(window.deferredPrompt);
+        }
+
         const handleBeforeInstallPrompt = (e) => {
             e.preventDefault();
             setInstallPrompt(e);
+            window.deferredPrompt = e;
         };
 
         const handleAppInstalled = () => {
