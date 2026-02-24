@@ -33,7 +33,9 @@ export const googleAuth = async (req, res) => {
       if (!user.googleId) { user.googleId = googleId; user.avatar = picture; await user.save(); }
     } else {
       // New user via Google — phone will be null until they place an order
-      user = await User.create({ name, email: email?.toLowerCase(), googleId, avatar: picture });
+      const userData = { name, googleId, avatar: picture };
+      if (email) userData.email = email.toLowerCase();
+      user = await User.create(userData);
     }
 
     const token = generateToken(user._id);
@@ -66,7 +68,9 @@ export const registerCustomer = async (req, res) => {
       if (existingEmail) return res.status(400).json({ message: 'Email already registered. Please login instead.' });
     }
 
-    const user = await User.create({ name, phone, email: email?.toLowerCase(), password });
+    const userData = { name, phone, password };
+    if (email) userData.email = email.toLowerCase();
+    const user = await User.create(userData);
 
     res.status(201).json({
       token: generateToken(user._id),
