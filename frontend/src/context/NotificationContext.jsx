@@ -17,14 +17,18 @@ export const NotificationProvider = ({ children }) => {
     const lastPushTimeRef = useRef(0);
 
     const togglePush = async () => {
+        if (!window.Notification) {
+            alert("Push notifications are not supported in this browser.");
+            return;
+        }
         if (!pushEnabled) {
-            const perm = await Notification.requestPermission();
+            const perm = await window.Notification.requestPermission();
             if (perm === 'granted') {
                 setPushEnabled(true);
                 localStorage.setItem('pushEnabled', 'true');
-                new Notification("Notifications Enabled!", {
+                new window.Notification("Notifications Enabled!", {
                     body: "You will now receive updates.",
-                    icon: '/src/assets/logo.png'
+                    icon: '/logo.png'
                 });
             } else {
                 alert("Please enable notification permissions in your browser settings.");
@@ -66,13 +70,13 @@ export const NotificationProvider = ({ children }) => {
                     setPagination(res.data.pagination);
 
                     // Push notifications logic
-                    if (pushEnabled && Notification.permission === 'granted' && res.data.pagination.unreadCount > 0) {
+                    if (pushEnabled && window.Notification && window.Notification.permission === 'granted' && res.data.pagination.unreadCount > 0) {
                         const now = Date.now();
                         if (now - lastPushTimeRef.current > 30000) { // every 30 seconds push unread
                             res.data.notifications.filter(n => !n.isRead).forEach(n => {
-                                new Notification(n.title, {
+                                new window.Notification(n.title, {
                                     body: n.message,
-                                    icon: '/src/assets/logo.png',
+                                    icon: '/logo.png',
                                     tag: n._id // keeps it from duplicating visually if already showing
                                 });
                             });

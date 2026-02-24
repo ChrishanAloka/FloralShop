@@ -7,7 +7,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
+      includeAssets: ['logo.png'],
       manifest: {
         name: 'Bloom & Petal',
         short_name: 'Bloom&Petal',
