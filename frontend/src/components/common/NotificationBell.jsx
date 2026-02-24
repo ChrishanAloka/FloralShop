@@ -5,7 +5,7 @@ import { Icon } from './Icons';
 import { formatDate } from '../../utils/helpers';
 
 export default function NotificationBell() {
-    const { notifications, unreadCount, markAsRead, markAllAsRead, loading } = useNotifications();
+    const { notifications, unreadCount, markAsRead, markAllAsRead, loading, pushEnabled, togglePush } = useNotifications();
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
     const navigate = useNavigate();
@@ -73,16 +73,28 @@ export default function NotificationBell() {
                     overflow: 'hidden',
                     animation: 'fadeInScale 0.2s ease forwards',
                 }}>
-                    <div className="p-3 d-flex justify-content-between align-items-center" style={{ background: 'var(--blush-light)', borderBottom: '1px solid var(--champagne)' }}>
+                    <div className="p-3 d-flex justify-content-between align-items-center flex-wrap gap-2" style={{ background: 'var(--blush-light)', borderBottom: '1px solid var(--champagne)' }}>
                         <h6 className="mb-0" style={{ fontFamily: 'var(--font-display)', fontWeight: 600 }}>Notifications</h6>
-                        {unreadCount > 0 && (
+                        <div className="d-flex align-items-center gap-2">
+                            {unreadCount > 0 && (
+                                <button
+                                    onClick={markAllAsRead}
+                                    style={{ background: 'none', border: 'none', color: 'var(--rose)', fontSize: '0.75rem', fontWeight: 600, padding: 0 }}
+                                >
+                                    Mark all as read
+                                </button>
+                            )}
+                        </div>
+                        <div className="w-100 mt-1 d-flex align-items-center justify-content-between">
+                            <span style={{ fontSize: '0.75rem', color: 'var(--text-mid)' }}>Push Notifications</span>
                             <button
-                                onClick={markAllAsRead}
-                                style={{ background: 'none', border: 'none', color: 'var(--rose)', fontSize: '0.75rem', fontWeight: 600, padding: 0 }}
+                                onClick={togglePush}
+                                className={`btn btn-sm ${pushEnabled ? 'btn-success' : 'btn-outline-primary'}`}
+                                style={{ fontSize: '0.7rem', padding: '0.2rem 0.5rem', borderRadius: '4px' }}
                             >
-                                Mark all as read
+                                {pushEnabled ? 'Enabled' : 'Enable'}
                             </button>
-                        )}
+                        </div>
                     </div>
 
                     <div className="notification-list" style={{ maxHeight: '400px', overflowY: 'auto' }}>

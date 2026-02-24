@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from './AuthContext';
 import api from '../services/api';
 
@@ -11,8 +11,29 @@ export const NotificationProvider = ({ children }) => {
     const [loading, setLoading] = useState(false);
     const [pagination, setPagination] = useState({ current: 1, total: 1, totalItems: 0 });
 
-    // Track current active page to prevent poller from resetting user to Page 1
     const [activePage, setActivePage] = useState(1);
+
+    const [pushEnabled, setPushEnabled] = useState(() => localStorage.getItem('pushEnabled') === 'true');
+    const lastPushTimeRef = useRef(0);
+
+    const togglePush = async () => {
+        if (!pushEnabled) {
+            const perm = await Notification.requestPermission();
+            if (perm === 'granted') {
+                setPushEnabled(true);
+                localStorage.setItem('pushEnabled', 'true');
+                new Notification("Notifications Enabled!", {
+                    body: "You will now receive updates.",
+                    icon: '/src/assets/logo.png'
+                });
+            } else {
+                alert("Please enable notification permissions in your browser settings.");
+            }
+        } else {
+            setPushEnabled(false);
+            localStorage.setItem('pushEnabled', 'false');
+        }
+    };
 
     const fetchNotifications = useCallback(async (page = 1) => {
         if (!user) return;
@@ -33,7 +54,6 @@ export const NotificationProvider = ({ children }) => {
     useEffect(() => {
         if (user) {
             fetchNotifications(activePage);
-            // Polling every 10 seconds
             const interval = setInterval(async () => {
                 try {
                     // Always refresh unread count, but only update the list if on page 1
@@ -44,6 +64,22 @@ export const NotificationProvider = ({ children }) => {
                         setNotifications(res.data.notifications);
                     }
                     setPagination(res.data.pagination);
+
+                    // Push notifications logic
+                    if (pushEnabled && Notification.permission === 'granted' && res.data.pagination.unreadCount > 0) {
+                        const now = Date.now();
+                        if (now - lastPushTimeRef.current > 30000) { // every 30 seconds push unread
+                            res.data.notifications.filter(n => !n.isRead).forEach(n => {
+                                new Notification(n.title, {
+                                    body: n.message,
+                                    icon: '/src/assets/logo.png',
+                                    tag: n._id // keeps it from duplicating visually if already showing
+                                });
+                            });
+                            lastPushTimeRef.current = now;
+                        }
+                    }
+
                 } catch (err) {
                     console.error('Polling error:', err);
                 }
@@ -82,6 +118,8 @@ export const NotificationProvider = ({ children }) => {
             unreadCount,
             loading,
             pagination,
+            pushEnabled,
+            togglePush,
             fetchNotifications,
             markAsRead,
             markAllAsRead

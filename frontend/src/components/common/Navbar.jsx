@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { usePWA } from '../../context/PWAContext';
 import { useCart } from '../../context/CartContext';
 import CartSidebar from './CartSidebar';
 import NotificationBell from './NotificationBell';
@@ -9,6 +10,7 @@ import Logo from '../../assets/logo.png';
 
 export default function Navbar() {
   const { user, logout, isAdmin } = useAuth();
+  const { installPrompt, installApp, needRefresh, updateServiceWorker } = usePWA();
   const { count } = useCart();
   const navigate = useNavigate();
   const [showCart, setShowCart] = useState(false);
@@ -52,6 +54,28 @@ export default function Navbar() {
 
             {/* Right controls */}
             <div className="d-flex align-items-center gap-2">
+              {/* PWA Update button */}
+              {needRefresh && (
+                <button
+                  className="btn btn-sm btn-primary d-flex align-items-center gap-1"
+                  onClick={() => updateServiceWorker(true)}
+                  style={{ fontSize: '0.75rem', padding: '0.4rem 0.8rem' }}
+                >
+                  <Icon.Refresh size={14} /> Update App
+                </button>
+              )}
+
+              {/* PWA Install button */}
+              {installPrompt && (
+                <button
+                  className="btn btn-sm btn-outline-primary d-flex align-items-center gap-1"
+                  onClick={installApp}
+                  style={{ fontSize: '0.75rem', padding: '0.4rem 0.8rem' }}
+                >
+                  <Icon.Download size={14} /> Install App
+                </button>
+              )}
+
               {user && <NotificationBell />}
               {/* Cart button */}
               <button
