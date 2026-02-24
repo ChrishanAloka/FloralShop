@@ -118,7 +118,7 @@ export const createOrder = async (req, res) => {
     });
 
     // Create notifications
-    createNotification({
+    await createNotification({
       recipient: customer._id,
       title: 'Order Placed! 🌸',
       message: `Your order #${order._id.toString().slice(-6).toUpperCase()} has been received and is being processed.`,
@@ -126,7 +126,7 @@ export const createOrder = async (req, res) => {
       link: '/profile'
     });
 
-    notifyAdmins({
+    await notifyAdmins({
       title: 'New Order Received',
       message: `${customerName} placed a new order (#${order._id.toString().slice(-6).toUpperCase()}) for ${order.totalAmount.toFixed(2)}.`,
       type: 'order',
@@ -164,15 +164,15 @@ export const updateOrderStatus = async (req, res) => {
     await order.save();
 
     // Create notifications for status update
-    createNotification({
-      recipient: order.customer,
+    await createNotification({
+      recipient: order.customer._id || order.customer,
       title: 'Order Status Updated',
       message: `Your order #${order._id.toString().slice(-6).toUpperCase()} is now ${status.toUpperCase()}${note ? ': ' + note : ''}.`,
       type: 'status',
       link: '/profile'
     });
 
-    notifyAdmins({
+    await notifyAdmins({
       title: 'Order Status Changed',
       message: `Order #${order._id.toString().slice(-6).toUpperCase()} was updated to ${status.toUpperCase()}.`,
       type: 'status',

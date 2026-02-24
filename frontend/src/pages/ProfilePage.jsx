@@ -47,10 +47,17 @@ export default function ProfilePage() {
       } else {
         setEditForm({ name: user.name, phone: phoneNum });
       }
-      orderService.getMyOrders()
-        .then(res => setOrders(res.data))
-        .catch(() => { })
-        .finally(() => setOrdersLoading(false));
+
+      const fetchOrders = () => {
+        orderService.getMyOrders()
+          .then(res => setOrders(res.data))
+          .catch(() => { })
+          .finally(() => setOrdersLoading(false));
+      };
+
+      fetchOrders();
+      const interval = setInterval(fetchOrders, 30000); // Polling every 30 seconds
+      return () => clearInterval(interval);
     }
   }, [user]);
 

@@ -24,7 +24,7 @@ export const createProduct = async (req, res) => {
   try {
     const product = await Product.create(req.body);
 
-    notifyAll({
+    await notifyAll({
       title: 'New Product Available! 🌸',
       message: `Exciting news! "${product.name}" is now available in our shop.`,
       type: 'product',
