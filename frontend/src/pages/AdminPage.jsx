@@ -92,7 +92,7 @@ function Sidebar({ onClose }) {
   ];
 
   return (
-    <div className="admin-sidebar d-flex flex-column" style={{ width: 220, minWidth: 220 }}>
+    <div className="admin-sidebar d-flex flex-column" style={{ width: 220, minWidth: 220, height: '100%' }}>
       {/* Brand */}
       <div className="sidebar-brand d-flex align-items-center gap-2">
         <img src={Logo} alt="Bloom & Petal Logo" style={{ height: '24px', width: 'auto' }} />
@@ -152,9 +152,10 @@ export default function AdminPage() {
   return (
     <div style={{ display: 'flex', minHeight: '100vh' }}>
       {/* Mobile overlay */}
-      {sidebarOpen && (
-        <div className="d-lg-none" style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 999 }} onClick={() => setSidebarOpen(false)} />
-      )}
+      <div
+        className={`sidebar-overlay d-lg-none ${sidebarOpen ? 'show' : ''}`}
+        onClick={() => setSidebarOpen(false)}
+      />
 
       {/* Desktop sidebar */}
       <div className="d-none d-lg-flex" style={{ position: 'fixed', height: '100vh', zIndex: 1000, overflowY: 'auto' }}>
@@ -162,11 +163,9 @@ export default function AdminPage() {
       </div>
 
       {/* Mobile sidebar */}
-      {sidebarOpen && (
-        <div style={{ position: 'fixed', top: 0, left: 0, height: '100vh', zIndex: 1001, overflowY: 'auto' }}>
-          <Sidebar onClose={() => setSidebarOpen(false)} />
-        </div>
-      )}
+      <div className={`mobile-sidebar-container d-lg-none ${sidebarOpen ? 'open' : ''}`}>
+        <Sidebar onClose={() => setSidebarOpen(false)} />
+      </div>
 
       {/* Main content */}
       <div className="d-none d-lg-block" style={{ marginLeft: 220, flex: 1, background: 'var(--ivory)', padding: '1.5rem' }}>

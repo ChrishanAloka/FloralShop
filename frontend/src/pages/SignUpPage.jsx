@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { Icon } from '../components/common/Icons';
 import { COUNTRY_CODES } from '../utils/countryCodes';
 import api from '../services/api';
+import Logo from '../assets/logo.png';
 
 export default function SignUpPage() {
     const [form, setForm] = useState({ name: '', phone: '', email: '', password: '' });
@@ -51,7 +52,7 @@ export default function SignUpPage() {
 
                 {/* Header with floral SVG */}
                 <div className="text-center mb-4">
-                    <svg width="56" height="56" viewBox="0 0 56 56" fill="none" style={{ marginBottom: '0.6rem' }}>
+                    {/* <svg width="56" height="56" viewBox="0 0 56 56" fill="none" style={{ marginBottom: '0.6rem' }}>
                         <circle cx="28" cy="28" r="28" fill="#fdeef2" />
                         <circle cx="28" cy="28" r="10" fill="#d4637a" />
                         <circle cx="28" cy="14" r="7" fill="#e8a0b0" />
@@ -62,7 +63,8 @@ export default function SignUpPage() {
                         <circle cx="38" cy="18" r="5.5" fill="#f5c6d0" />
                         <circle cx="18" cy="38" r="5.5" fill="#f5c6d0" />
                         <circle cx="38" cy="38" r="5.5" fill="#f5c6d0" />
-                    </svg>
+                    </svg> */}
+                    <img src={Logo} alt="Bloom & Petal Logo" style={{ height: '150px', width: 'auto', marginBottom: '0.6rem' }} />
                     <h3 style={{ fontFamily: 'var(--font-display)', color: 'var(--text-dark)', marginBottom: '0.3rem' }}>Create Account</h3>
                     <p style={{ color: 'var(--text-light)', fontSize: '0.85rem' }}>Join Bloom & Petal for a personalized experience</p>
                 </div>

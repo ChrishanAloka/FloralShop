@@ -4,6 +4,7 @@ import { CartProvider } from './context/CartContext';
 import { ConfigProvider } from './context/ConfigContext';
 import { NotificationProvider } from './context/NotificationContext';
 import Navbar from './components/common/Navbar';
+import Footer from './components/common/Footer';
 import HomePage from './pages/HomePage';
 import ShopPage from './pages/ShopPage';
 import CustomBouquetPage from './pages/CustomBouquetPage';
@@ -17,7 +18,8 @@ function Layout({ children }) {
   return (
     <>
       <Navbar />
-      <main>{children}</main>
+      <main style={{ minHeight: '60vh' }}>{children}</main>
+      <Footer />
     </>
   );
 }

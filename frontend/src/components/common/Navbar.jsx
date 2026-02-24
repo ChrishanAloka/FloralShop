@@ -1,7 +1,7 @@
+import { useState, useRef, useEffect } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
-import { useState } from 'react';
 import CartSidebar from './CartSidebar';
 import NotificationBell from './NotificationBell';
 import { Icon } from './Icons';
@@ -14,6 +14,18 @@ export default function Navbar() {
   const [showCart, setShowCart] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const userMenuRef = useRef(null);
+
+  // Close user menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+        setUserMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -64,7 +76,7 @@ export default function Navbar() {
               {user ? (
                 <div className="d-flex align-items-center gap-2">
                   {/* Profile dropdown */}
-                  <div className="dropdown">
+                  <div className="dropdown" ref={userMenuRef}>
                     <button
                       className={`toggle border-0 ${userMenuOpen ? 'show' : ''}`}
                       onClick={() => setUserMenuOpen(!userMenuOpen)}
@@ -112,14 +124,6 @@ export default function Navbar() {
                         </button>
                       </li>
                     </ul>
-
-                    {/* Overlay to close menu when clicking outside */}
-                    {userMenuOpen && (
-                      <div
-                        style={{ position: 'fixed', inset: 0, zIndex: -1 }}
-                        onClick={() => setUserMenuOpen(false)}
-                      />
-                    )}
                   </div>
 
                 </div>

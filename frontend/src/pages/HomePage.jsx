@@ -229,17 +229,6 @@ export default function HomePage() {
           </div>
         </div>
       )}
-
-      {/* Footer */}
-      <footer style={{ background: 'var(--text-dark)', color: 'rgba(255,255,255,0.7)', padding: '2rem 0', textAlign: 'center' }}>
-        <div className="container">
-          <div className="d-flex align-items-center justify-content-center gap-2 mb-1">
-            <img src={Logo} alt="Bloom & Petal Logo" style={{ height: '30px', width: 'auto' }} />
-            <span style={{ fontFamily: 'var(--font-display)', fontSize: '1.2rem', color: 'var(--blush)', fontStyle: 'italic' }}>Bloom & Petal</span>
-          </div>
-          <p style={{ fontSize: '0.82rem', margin: 0 }}>Crafted with love. Delivered with care.</p>
-        </div>
-      </footer>
     </>
   );
 }

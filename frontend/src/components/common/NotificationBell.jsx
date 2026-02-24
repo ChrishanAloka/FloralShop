@@ -40,21 +40,23 @@ export default function NotificationBell() {
                 {unreadCount > 0 && (
                     <span style={{
                         position: 'absolute',
-                        top: '5px',
-                        right: '5px',
+                        top: '4px',
+                        right: '4px',
                         background: 'var(--rose)',
                         color: 'white',
                         fontSize: '10px',
                         fontWeight: 700,
-                        width: '16px',
-                        height: '16px',
-                        borderRadius: '50%',
+                        minWidth: '18px',
+                        height: '18px',
+                        borderRadius: '10px',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        border: '2px solid white'
+                        border: '2px solid white',
+                        padding: '0 4px',
+                        lineHeight: 1
                     }}>
-                        {unreadCount > 9 ? '9+' : unreadCount}
+                        {unreadCount}
                     </span>
                 )}
             </button>
