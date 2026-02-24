@@ -8,6 +8,7 @@ import ShopPage from './pages/ShopPage';
 import CustomBouquetPage from './pages/CustomBouquetPage';
 import ProfilePage from './pages/ProfilePage';
 import LoginPage from './pages/LoginPage';
+import SignUpPage from './pages/SignUpPage';
 import AdminPage from './pages/AdminPage';
 
 function Layout({ children }) {
@@ -41,6 +42,7 @@ export default function App() {
                   <Route path="custom-bouquet" element={<CustomBouquetPage />} />
                   <Route path="profile" element={<ProfilePage />} />
                   <Route path="login" element={<LoginPage />} />
+                  <Route path="signup" element={<SignUpPage />} />
                   <Route path="*" element={<div className="text-center py-5"><h2 style={{ fontFamily: 'var(--font-display)' }}>🌸 Page not found</h2></div>} />
                 </Routes>
               </Layout>

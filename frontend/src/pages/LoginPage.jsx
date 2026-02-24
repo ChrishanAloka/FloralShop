@@ -7,7 +7,7 @@ import api from '../services/api';
 
 export default function LoginPage() {
   const [mode, setMode] = useState('customer');
-  const [form, setForm] = useState({ phone: '', password: '' });
+  const [form, setForm] = useState({ identifier: '', phone: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState('');
@@ -19,7 +19,10 @@ export default function LoginPage() {
     setLoading(true); setError('');
     try {
       const endpoint = mode === 'admin' ? '/auth/admin-login' : '/auth/customer-login';
-      const res = await api.post(endpoint, form);
+      const payload = mode === 'admin'
+        ? { phone: form.phone, password: form.password }
+        : { identifier: form.identifier, password: form.password };
+      const res = await api.post(endpoint, payload);
       loginWithToken(res.data.token, res.data.user);
       navigate(mode === 'admin' ? '/admin' : '/profile');
     } catch (err) {
@@ -127,38 +130,51 @@ export default function LoginPage() {
 
         {/* Phone / password form */}
         <form onSubmit={handleSubmit}>
-          <div className="mb-3">
-            <label className="form-label" style={{ fontSize: '0.85rem', fontWeight: 600 }}>Phone Number</label>
-            <div className="input-group">
-              <span className="input-group-text" style={{ background: 'var(--blush-light)', border: '1.5px solid var(--champagne)', borderRight: 'none' }}>
-                <Icon.Phone size={16} color="var(--petal)" />
-              </span>
-              <input className="form-control" type="tel" value={form.phone}
-                onChange={e => setForm({ ...form, phone: e.target.value })}
-                placeholder="+1 234 567 8900"
-                style={{ borderLeft: 'none' }} />
-            </div>
-          </div>
-
-          {mode === 'admin' && (
+          {mode === 'admin' ? (
             <div className="mb-3">
-              <label className="form-label" style={{ fontSize: '0.85rem', fontWeight: 600 }}>Password</label>
+              <label className="form-label" style={{ fontSize: '0.85rem', fontWeight: 600 }}>Phone Number</label>
               <div className="input-group">
                 <span className="input-group-text" style={{ background: 'var(--blush-light)', border: '1.5px solid var(--champagne)', borderRight: 'none' }}>
-                  <Icon.Lock size={16} color="var(--petal)" />
+                  <Icon.Phone size={16} color="var(--petal)" />
                 </span>
-                <input className="form-control" type="password" value={form.password}
-                  onChange={e => setForm({ ...form, password: e.target.value })}
-                  placeholder="Admin password"
+                <input className="form-control" type="tel" value={form.phone}
+                  onChange={e => setForm({ ...form, phone: e.target.value })}
+                  placeholder="+1..."
+                  style={{ borderLeft: 'none' }} />
+              </div>
+            </div>
+          ) : (
+            <div className="mb-3">
+              <label className="form-label" style={{ fontSize: '0.85rem', fontWeight: 600 }}>Phone or Email</label>
+              <div className="input-group">
+                <span className="input-group-text" style={{ background: 'var(--blush-light)', border: '1.5px solid var(--champagne)', borderRight: 'none' }}>
+                  <Icon.Person size={16} color="var(--petal)" />
+                </span>
+                <input className="form-control" type="text" value={form.identifier}
+                  onChange={e => setForm({ ...form, identifier: e.target.value })}
+                  placeholder="Phone or email"
                   style={{ borderLeft: 'none' }} />
               </div>
             </div>
           )}
 
+          <div className="mb-3">
+            <label className="form-label" style={{ fontSize: '0.85rem', fontWeight: 600 }}>Password</label>
+            <div className="input-group">
+              <span className="input-group-text" style={{ background: 'var(--blush-light)', border: '1.5px solid var(--champagne)', borderRight: 'none' }}>
+                <Icon.Lock size={16} color="var(--petal)" />
+              </span>
+              <input className="form-control" type="password" value={form.password}
+                onChange={e => setForm({ ...form, password: e.target.value })}
+                placeholder={mode === 'admin' ? "Admin password" : "Your password (if set)"}
+                style={{ borderLeft: 'none' }} />
+            </div>
+          </div>
+
           {mode === 'customer' && (
             <div className="d-flex align-items-center gap-2 mb-3" style={{ padding: '0.6rem 0.8rem', background: 'var(--blush-light)', borderRadius: 'var(--radius-sm)', fontSize: '0.76rem', color: 'var(--text-mid)' }}>
               <Icon.Info size={14} color="var(--petal)" style={{ flexShrink: 0 }} />
-              Customers don't need a password — just your phone number.
+              If you haven't set a password yet, you can leave it blank.
             </div>
           )}
 
@@ -177,7 +193,7 @@ export default function LoginPage() {
         </form>
 
         <p className="text-center mt-3" style={{ fontSize: '0.82rem', color: 'var(--text-light)' }}>
-          New here? <Link to="/shop" style={{ color: 'var(--rose)', fontWeight: 500 }}>Browse our shop</Link> and create an account at checkout.
+          New here? <Link to="/signup" style={{ color: 'var(--rose)', fontWeight: 600 }}>Create an account</Link> or <Link to="/shop" style={{ color: 'var(--rose)', fontWeight: 500 }}>browse our shop</Link>.
         </p>
       </div>
     </div>

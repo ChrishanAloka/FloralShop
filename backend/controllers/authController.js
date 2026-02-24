@@ -48,19 +48,30 @@ export const googleAuth = async (req, res) => {
 };
 
 // POST /api/auth/register-customer
-// Called when a customer places an order — creates account by phone
+// Called when a customer places an order or signs up manually
 export const registerCustomer = async (req, res) => {
   try {
-    const { name, phone, email } = req.body;
-    if (!name || !phone) return res.status(400).json({ message: 'Name and phone required' });
-
-    let user = await User.findOne({ phone });
-    if (user) {
-      return res.json({ token: generateToken(user._id), user: { id: user._id, name: user.name, phone: user.phone, role: user.role } });
+    const { name, phone, email, password } = req.body;
+    if (!name || (!phone && !email)) {
+      return res.status(400).json({ message: 'Name and either Phone or Email are required' });
     }
 
-    user = await User.create({ name, phone, email });
-    res.status(201).json({ token: generateToken(user._id), user: { id: user._id, name: user.name, phone: user.phone, role: user.role } });
+    // Check if user already exists by phone or email
+    if (phone) {
+      const existingPhone = await User.findOne({ phone });
+      if (existingPhone) return res.status(400).json({ message: 'Phone number already registered. Please login instead.' });
+    }
+    if (email) {
+      const existingEmail = await User.findOne({ email: email.toLowerCase() });
+      if (existingEmail) return res.status(400).json({ message: 'Email already registered. Please login instead.' });
+    }
+
+    const user = await User.create({ name, phone, email: email?.toLowerCase(), password });
+
+    res.status(201).json({
+      token: generateToken(user._id),
+      user: { id: user._id, name: user.name, phone: user.phone, email: user.email, role: user.role }
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -85,13 +96,35 @@ export const getMe = async (req, res) => {
   res.json({ user: { id: req.user._id, name: req.user.name, phone: req.user.phone, email: req.user.email, avatar: req.user.avatar, role: req.user.role } });
 };
 
-// POST /api/auth/customer-login (by phone - no password needed for customers)
+// POST /api/auth/customer-login (by phone or email)
 export const customerLogin = async (req, res) => {
   try {
-    const { phone } = req.body;
-    const user = await User.findOne({ phone, role: 'customer' });
-    if (!user) return res.status(404).json({ message: 'No account found with this phone number' });
-    res.json({ token: generateToken(user._id), user: { id: user._id, name: user.name, phone: user.phone, role: user.role } });
+    const { identifier, password } = req.body; // identifier can be phone or email
+    if (!identifier) return res.status(400).json({ message: 'Phone or email required' });
+
+    const user = await User.findOne({
+      $or: [{ phone: identifier }, { email: identifier.toLowerCase() }],
+      role: 'customer'
+    });
+
+    if (!user) return res.status(404).json({ message: 'No account found with this phone or email' });
+
+    // If user has a password, verify it
+    if (user.password) {
+      if (!password) {
+        return res.status(400).json({ message: 'This account requires a password to login' });
+      }
+      const isMatch = await user.comparePassword(password);
+      if (!isMatch) return res.status(401).json({ message: 'Invalid password' });
+    } else if (password) {
+      // If user provided a password but hasn't set one yet, we could either error or allow login and set it.
+      // For now, let's just allow login if no password exists (legacy users or checkout-registered).
+    }
+
+    res.json({
+      token: generateToken(user._id),
+      user: { id: user._id, name: user.name, phone: user.phone, email: user.email, role: user.role }
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
