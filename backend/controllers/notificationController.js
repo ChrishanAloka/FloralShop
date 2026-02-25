@@ -91,3 +91,18 @@ export const markAllAsRead = async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 };
+// API: Send test notification
+export const sendTestNotification = async (req, res) => {
+    try {
+        const testNotif = await createNotification({
+            recipient: req.user._id,
+            title: "Test Notification 🔔",
+            message: "This is a test notification to verify your device connection. It's working!",
+            type: 'status',
+            link: '/shop'
+        });
+        res.json(testNotif);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
