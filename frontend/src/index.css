@@ -388,13 +388,44 @@ h3 {
 /* ---- Category Tabs ---- */
 .category-tabs {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 0.5rem;
-  justify-content: center;
+  justify-content: flex-start;
   margin-bottom: 2rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 0.5rem 0.5rem 0.8rem;
+  /* Added bottom padding for scrollbar space */
+  scrollbar-width: thin;
+  scrollbar-color: var(--petal) transparent;
+}
+
+.category-tabs::-webkit-scrollbar {
+  display: block;
+  height: 4px;
+  /* Thin scrollbar */
+}
+
+.category-tabs::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.category-tabs::-webkit-scrollbar-thumb {
+  background-color: var(--petal);
+  border-radius: 10px;
+  opacity: 0.5;
+}
+
+@media (min-width: 768px) {
+  .category-tabs {
+    justify-content: center;
+    flex-wrap: wrap;
+    overflow-x: visible;
+  }
 }
 
 .category-tab {
+  flex: 0 0 auto;
   padding: 0.45rem 1.1rem;
   border-radius: 50px;
   border: 1.5px solid var(--champagne);
@@ -404,6 +435,7 @@ h3 {
   font-weight: 500;
   cursor: pointer;
   transition: var(--transition);
+  white-space: nowrap;
 }
 
 .category-tab:hover,
@@ -1071,4 +1103,57 @@ h3 {
   color: white !important;
   border-color: var(--rose) !important;
   transform: rotate(90deg);
+}
+
+/* ---- Notification Dropdown ---- */
+.notification-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 10px;
+  width: 340px;
+  z-index: 1100;
+  padding: 0;
+  overflow: hidden;
+  animation: fadeInScale 0.2s ease forwards;
+  background: var(--white);
+  border: 1px solid var(--champagne);
+  border-radius: var(--radius);
+}
+
+@media (max-width: 576px) {
+  .notification-dropdown {
+    position: fixed;
+    top: 70px;
+    /* Below the navbar */
+    left: 5%;
+    right: 5%;
+    width: 90%;
+    margin: 0 auto;
+    max-height: 80vh;
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.98) translateY(-5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.notification-item {
+  transition: background 0.2s;
+}
+
+.notification-item.unread {
+  border-left: 3px solid var(--rose);
+}
+
+.notification-item:hover {
+  background: var(--ivory) !important;
 }

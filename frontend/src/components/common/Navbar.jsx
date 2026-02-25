@@ -60,27 +60,7 @@ export default function Navbar() {
 
             {/* Right controls */}
             <div className="d-flex align-items-center gap-2">
-              {/* PWA Update button */}
-              {needRefresh && (
-                <button
-                  className="btn btn-sm btn-primary d-flex align-items-center gap-1"
-                  onClick={() => updateServiceWorker(true)}
-                  style={{ fontSize: '0.75rem', padding: '0.4rem 0.8rem' }}
-                >
-                  <Icon.Refresh size={14} /> Update App
-                </button>
-              )}
 
-              {/* PWA Install button */}
-              {installPrompt && (
-                <button
-                  className="btn btn-sm btn-outline-primary d-flex align-items-center gap-1"
-                  onClick={installApp}
-                  style={{ fontSize: '0.75rem', padding: '0.4rem 0.8rem' }}
-                >
-                  <Icon.Download size={14} /> Install App
-                </button>
-              )}
 
               {user && <NotificationBell />}
               {/* Cart button */}
@@ -176,11 +156,23 @@ export default function Navbar() {
 
               {/* Mobile hamburger */}
               <button
-                className="d-lg-none"
+                className="d-lg-none position-relative"
                 onClick={() => setMenuOpen(!menuOpen)}
                 style={{ width: 38, height: 38, borderRadius: '50%', border: '1.5px solid var(--champagne)', background: 'var(--white)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--text-mid)' }}
               >
                 {menuOpen ? <Icon.X size={18} /> : <Icon.Menu size={18} />}
+                {(needRefresh || installPrompt) && (
+                  <span style={{
+                    position: 'absolute',
+                    top: '2px',
+                    right: '2px',
+                    width: '10px',
+                    height: '10px',
+                    background: 'var(--rose)',
+                    borderRadius: '50%',
+                    border: '1.5px solid white'
+                  }}></span>
+                )}
               </button>
             </div>
           </div>
@@ -191,6 +183,29 @@ export default function Navbar() {
               <div className="d-flex flex-column gap-1">
                 <NavLink className="nav-link" to="/shop" onClick={() => setMenuOpen(false)}>Shop</NavLink>
                 <NavLink className="nav-link" to="/custom-bouquet" onClick={() => setMenuOpen(false)}>Custom Bouquet</NavLink>
+
+                {/* PWA Options in Menu */}
+                {needRefresh && (
+                  <button
+                    className="nav-link text-start border-0 bg-transparent d-flex align-items-center gap-2"
+                    style={{ color: 'var(--rose)', fontWeight: 600 }}
+                    onClick={() => { setMenuOpen(false); updateServiceWorker(true); }}
+                  >
+                    <Icon.Refresh size={16} color="var(--rose)" />
+                    Update App Available
+                  </button>
+                )}
+                {installPrompt && (
+                  <button
+                    className="nav-link text-start border-0 bg-transparent d-flex align-items-center gap-2"
+                    style={{ color: 'var(--rose-deep)', fontWeight: 600 }}
+                    onClick={() => { setMenuOpen(false); installApp(); }}
+                  >
+                    <Icon.Download size={16} color="var(--rose-deep)" />
+                    Install App
+                  </button>
+                )}
+
                 {user && (
                   <NavLink className="nav-link" to="/profile" onClick={() => setMenuOpen(false)}>My Profile</NavLink>
                 )}

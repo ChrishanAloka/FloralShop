@@ -5,7 +5,7 @@ import { Icon } from './Icons';
 import { formatDate } from '../../utils/helpers';
 
 export default function NotificationBell() {
-    const { notifications, unreadCount, markAsRead, markAllAsRead, loading, pushEnabled, togglePush } = useNotifications();
+    const { notifications, unreadCount, markAsRead, markAllAsRead, loading, pushEnabled, togglePush, sendTestNotification } = useNotifications();
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
     const navigate = useNavigate();
@@ -62,20 +62,16 @@ export default function NotificationBell() {
             </button>
 
             {isOpen && (
-                <div className="bloom-card notification-dropdown shadow-lg" style={{
-                    position: 'absolute',
-                    top: '100%',
-                    right: 0,
-                    marginTop: '10px',
-                    width: '320px',
-                    zIndex: 1100,
-                    padding: 0,
-                    overflow: 'hidden',
-                    animation: 'fadeInScale 0.2s ease forwards',
-                }}>
+                <div className="bloom-card notification-dropdown shadow-lg">
                     <div className="p-3 d-flex justify-content-between align-items-center flex-wrap gap-2" style={{ background: 'var(--blush-light)', borderBottom: '1px solid var(--champagne)' }}>
                         <h6 className="mb-0" style={{ fontFamily: 'var(--font-display)', fontWeight: 600 }}>Notifications</h6>
                         <div className="d-flex align-items-center gap-2">
+                            <button
+                                onClick={sendTestNotification}
+                                style={{ background: 'none', border: 'none', color: 'var(--text-mid)', fontSize: '0.75rem', fontWeight: 600, padding: 0 }}
+                            >
+                                Send Test
+                            </button>
                             {unreadCount > 0 && (
                                 <button
                                     onClick={markAllAsRead}

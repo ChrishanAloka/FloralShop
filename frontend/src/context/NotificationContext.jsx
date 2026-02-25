@@ -116,6 +116,15 @@ export const NotificationProvider = ({ children }) => {
         }
     };
 
+    const sendTestNotification = async () => {
+        try {
+            await api.post('/notifications/test');
+            // We don't need to do anything here, the poller will pick it up
+        } catch (err) {
+            console.error('Failed to send test notification:', err);
+        }
+    };
+
     return (
         <NotificationContext.Provider value={{
             notifications,
@@ -126,7 +135,8 @@ export const NotificationProvider = ({ children }) => {
             togglePush,
             fetchNotifications,
             markAsRead,
-            markAllAsRead
+            markAllAsRead,
+            sendTestNotification
         }}>
             {children}
         </NotificationContext.Provider>
