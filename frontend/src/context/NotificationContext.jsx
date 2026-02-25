@@ -73,12 +73,26 @@ export const NotificationProvider = ({ children }) => {
                     if (pushEnabled && window.Notification && window.Notification.permission === 'granted' && res.data.pagination.unreadCount > 0) {
                         const now = Date.now();
                         if (now - lastPushTimeRef.current > 30000) { // every 30 seconds push unread
-                            res.data.notifications.filter(n => !n.isRead).forEach(n => {
-                                new window.Notification(n.title, {
+                            const unreadNotifs = res.data.notifications.filter(n => !n.isRead);
+
+                            // Get SW registration for more reliable mobile push
+                            const registration = await navigator.serviceWorker?.ready;
+
+                            unreadNotifs.forEach(n => {
+                                const options = {
                                     body: n.message,
                                     icon: '/logo.png',
-                                    tag: n._id // keeps it from duplicating visually if already showing
-                                });
+                                    badge: '/logo.png', // Small icon for Android status bar
+                                    tag: n._id,
+                                    vibrate: [100, 50, 100],
+                                    data: { url: n.link || '/' }
+                                };
+
+                                if (registration && 'showNotification' in registration) {
+                                    registration.showNotification(n.title, options);
+                                } else {
+                                    new window.Notification(n.title, options);
+                                }
                             });
                             lastPushTimeRef.current = now;
                         }
