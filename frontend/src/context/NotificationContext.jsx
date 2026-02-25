@@ -4,6 +4,17 @@ import api from '../services/api';
 
 const NotificationContext = createContext();
 
+function urlBase64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+}
+
 export const NotificationProvider = ({ children }) => {
     const { user } = useAuth();
     const [notifications, setNotifications] = useState([]);
@@ -21,15 +32,31 @@ export const NotificationProvider = ({ children }) => {
             alert("Push notifications are not supported in this browser.");
             return;
         }
+
         if (!pushEnabled) {
             const perm = await window.Notification.requestPermission();
             if (perm === 'granted') {
-                setPushEnabled(true);
-                localStorage.setItem('pushEnabled', 'true');
-                new window.Notification("Notifications Enabled!", {
-                    body: "You will now receive updates.",
-                    icon: '/logo.png'
-                });
+                try {
+                    const registration = await navigator.serviceWorker.ready;
+                    const subscription = await registration.pushManager.subscribe({
+                        userVisibleOnly: true,
+                        applicationServerKey: urlBase64ToUint8Array(import.meta.env.VITE_VAPID_PUBLIC_KEY)
+                    });
+
+                    // Send subscription to backend
+                    await api.post('/notifications/subscribe', { subscription });
+
+                    setPushEnabled(true);
+                    localStorage.setItem('pushEnabled', 'true');
+
+                    new window.Notification("Push Notifications Active! 🌸", {
+                        body: "You'll now get real-time updates even when the app is closed.",
+                        icon: '/logo.png'
+                    });
+                } catch (err) {
+                    console.error('Subscription failed:', err);
+                    alert("Failed to register for push notifications. Make sure you are using a secure connection (HTTPS).");
+                }
             } else {
                 alert("Please enable notification permissions in your browser settings.");
             }
@@ -58,50 +85,9 @@ export const NotificationProvider = ({ children }) => {
     useEffect(() => {
         if (user) {
             fetchNotifications(activePage);
-            const interval = setInterval(async () => {
-                try {
-                    // Always refresh unread count, but only update the list if on page 1
-                    // This prevents jarring jumps when reading history but keeps the bell updated
-                    const res = await api.get(`/notifications?page=${activePage}&limit=10`);
-                    setUnreadCount(res.data.pagination.unreadCount);
-                    if (activePage === 1) {
-                        setNotifications(res.data.notifications);
-                    }
-                    setPagination(res.data.pagination);
-
-                    // Push notifications logic
-                    if (pushEnabled && window.Notification && window.Notification.permission === 'granted' && res.data.pagination.unreadCount > 0) {
-                        const now = Date.now();
-                        if (now - lastPushTimeRef.current > 30000) { // every 30 seconds push unread
-                            const unreadNotifs = res.data.notifications.filter(n => !n.isRead);
-
-                            // Get SW registration for more reliable mobile push
-                            const registration = await navigator.serviceWorker?.ready;
-
-                            unreadNotifs.forEach(n => {
-                                const options = {
-                                    body: n.message,
-                                    icon: '/logo.png',
-                                    badge: '/logo.png', // Small icon for Android status bar
-                                    tag: n._id,
-                                    vibrate: [100, 50, 100],
-                                    data: { url: n.link || '/' }
-                                };
-
-                                if (registration && 'showNotification' in registration) {
-                                    registration.showNotification(n.title, options);
-                                } else {
-                                    new window.Notification(n.title, options);
-                                }
-                            });
-                            lastPushTimeRef.current = now;
-                        }
-                    }
-
-                } catch (err) {
-                    console.error('Polling error:', err);
-                }
-            }, 10000);
+            // We now rely on Server-side Push for immediate alerts,
+            // so we can slow down the polling significantly just for the UI count.
+            const interval = setInterval(() => fetchNotifications(activePage), 60000);
             return () => clearInterval(interval);
         } else {
             setNotifications([]);
