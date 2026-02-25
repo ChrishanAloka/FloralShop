@@ -44,7 +44,7 @@ export default function ProductCard({ product, onPreview }) {
             {product.description.length > 70 ? product.description.slice(0, 70) + '…' : product.description}
           </p>
         )}
-        <div className="d-flex justify-content-between align-items-center mt-2">
+        <div className="d-flex flex-column flex-sm-row justify-content-sm-between align-items-center mt-2 gap-2 gap-sm-0">
           <div className="product-price">{formatPrice(product.price)}</div>
           <button
             className="btn btn-sm btn-primary d-flex align-items-center gap-1"

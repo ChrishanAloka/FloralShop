@@ -17,12 +17,18 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef(null);
+  const navbarRef = useRef(null);
 
-  // Close user menu when clicking outside
+  // Close menus when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
+      // Close user menu if clicking outside its container
       if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
         setUserMenuOpen(false);
+      }
+      // Close mobile menu if clicking outside the entire navbar
+      if (navbarRef.current && !navbarRef.current.contains(event.target)) {
+        setMenuOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -36,7 +42,7 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="floral-navbar">
+      <nav className="floral-navbar" ref={navbarRef}>
         <div className="container">
           <div className="d-flex align-items-center justify-content-between w-100">
 
