@@ -10,6 +10,8 @@ import adminRoutes from './routes/adminRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
 import configRoutes from './routes/configRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
+import cron from 'node-cron';
+import { sendUnreadReminders } from './controllers/notificationController.js';
 
 dotenv.config();
 
@@ -48,8 +50,14 @@ app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {
     console.log('✅ MongoDB connected');
-    app.listen(process.env.PORT || 5000, () =>
-      console.log(`🌸 Server on port ${process.env.PORT || 5000}`)
-    );
+    app.listen(process.env.PORT || 5000, () => {
+      console.log(`🌸 Server on port ${process.env.PORT || 5000}`);
+
+      // Initialize Cron Job: Every 5 minutes
+      cron.schedule('*/5 * * * *', () => {
+        console.log('Running 5-minute unread notification reminder...');
+        sendUnreadReminders();
+      });
+    });
   })
   .catch(err => { console.error('❌ DB error:', err); process.exit(1); });

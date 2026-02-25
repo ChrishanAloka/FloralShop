@@ -183,3 +183,28 @@ export const subscribe = async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 };
+
+// CRON Helper: Send reminders for unread notifications
+export const sendUnreadReminders = async () => {
+    try {
+        // Find distinct users who have at least one unread notification
+        const unreadRecipients = await Notification.distinct('recipient', { isRead: false });
+
+        if (unreadRecipients.length === 0) return;
+
+        for (const userId of unreadRecipients) {
+            const unreadCount = await Notification.countDocuments({ recipient: userId, isRead: false });
+            if (unreadCount > 0) {
+                await sendPush(userId, {
+                    title: "Pending Notifications 🌸",
+                    body: `You have ${unreadCount} unread message${unreadCount > 1 ? 's' : ''} waiting for you in Bloom & Petal.`,
+                    data: { url: '/notifications' },
+                    tag: 'remind-unread' // One tag to prevent spamming multiple notifications
+                });
+            }
+        }
+        console.log(`Cron: Sent reminders to ${unreadRecipients.length} users.`);
+    } catch (err) {
+        console.error('Cron Reminder Error:', err);
+    }
+};
