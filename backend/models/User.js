@@ -11,6 +11,15 @@ const userSchema = new mongoose.Schema({
   avatar: { type: String },   // Google profile picture
   role: { type: String, enum: ['customer', 'admin'], default: 'customer' },
   isActive: { type: Boolean, default: true },
+  pushSubscriptions: [
+    {
+      endpoint: String,
+      keys: {
+        p256dh: String,
+        auth: String,
+      },
+    },
+  ],
 }, { timestamps: true });
 
 userSchema.pre('save', async function (next) {
