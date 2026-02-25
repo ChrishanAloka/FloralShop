@@ -6,25 +6,27 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: 'prompt',
+      // Use injectManifest so we can write our own SW that handles push
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.js',
       includeAssets: ['logo.png'],
       manifest: {
         name: 'Bloom & Petal',
-        short_name: 'Bloom&Petal',
+        short_name: 'Bloom & Petal',
         description: 'Exquisite Floral Shop & Custom Bouquets',
         theme_color: '#f5c6d0',
         background_color: '#faf5ef',
         display: 'standalone',
+        scope: '/',
+        start_url: '/',
         icons: [
           {
             src: 'logo.png',
             sizes: '192x192',
-            type: 'image/png'
-          },
-          {
-            src: 'logo.png',
-            sizes: '512x512',
-            type: 'image/png'
+            type: 'image/png',
+            purpose: 'any maskable'
           },
           {
             src: 'logo.png',
@@ -33,6 +35,10 @@ export default defineConfig({
             purpose: 'any maskable'
           }
         ]
+      },
+      devOptions: {
+        enabled: true,
+        type: 'module'
       }
     })
   ],
