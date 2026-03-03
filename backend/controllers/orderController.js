@@ -13,19 +13,19 @@ const buildWhatsAppMessage = (order) => {
   if (order.orderType === 'standard') {
     msg += `🛒 *Order Items:*\n`;
     order.items.forEach(item => {
-      msg += `  • ${item.name} x${item.quantity} — $${(item.price * item.quantity).toFixed(2)}\n`;
+      msg += `  • ${item.name} x${item.quantity} — LKR ${(item.price * item.quantity).toFixed(2)}\n`;
     });
   } else {
     msg += `💐 *Custom Bouquet:*\n`;
     msg += `  *Flowers:*\n`;
     order.customBouquet.flowers.forEach(f => {
-      msg += `    • ${f.name} x${f.quantity} — $${(f.pricePerStem * f.quantity).toFixed(2)}\n`;
+      msg += `    • ${f.name} x${f.quantity} — LKR ${(f.pricePerStem * f.quantity).toFixed(2)}\n`;
     });
-    msg += `  *Wrapper:* ${order.customBouquet.wrapper?.name || 'N/A'} — $${order.customBouquet.wrapper?.price?.toFixed(2) || '0.00'}\n`;
+    msg += `  *Wrapper:* ${order.customBouquet.wrapper?.name || 'N/A'} — LKR ${order.customBouquet.wrapper?.price?.toFixed(2) || '0.00'}\n`;
     if (order.customBouquet.note) msg += `  *Note:* ${order.customBouquet.note}\n`;
   }
 
-  msg += `\n💰 *Total: $${order.totalAmount.toFixed(2)}*\n`;
+  msg += `\n💰 *Total: LKR ${order.totalAmount.toFixed(2)}*\n`;
   if (order.deliveryNote) msg += `\n📝 *Note:* ${order.deliveryNote}\n`;
   return msg;
 };
@@ -128,7 +128,7 @@ export const createOrder = async (req, res) => {
 
     await notifyAdmins({
       title: 'New Order Received',
-      message: `${customerName} placed a new order (#${order._id.toString().slice(-6).toUpperCase()}) for ${order.totalAmount.toFixed(2)}.`,
+      message: `${customerName} placed a new order (#${order._id.toString().slice(-6).toUpperCase()}) for LKR ${order.totalAmount.toFixed(2)}.`,
       type: 'order',
       link: '/admin'
     });
