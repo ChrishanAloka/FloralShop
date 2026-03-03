@@ -56,6 +56,7 @@ export const createNotification = async ({ recipient, title, message, type, link
         await sendPush(recipient, {
             title,
             body: message,
+            tag: type || 'bloom-notif',
             data: { url: link || '/' }
         });
 
@@ -72,6 +73,16 @@ export const notifyAdmins = async ({ title, message, type, link }) => {
         const notifications = admins.map(a => ({ recipient: a._id, title, message, type, link }));
         if (notifications.length > 0) {
             await Notification.insertMany(notifications);
+
+            // Trigger push for each admin
+            await Promise.allSettled(
+                admins.map(admin => sendPush(admin._id, {
+                    title,
+                    body: message,
+                    tag: type ? `admin-${type}` : 'admin-notif',
+                    data: { url: link || '/' }
+                }))
+            );
         }
     } catch (err) {
         console.error('Notify Admins Error:', err);
@@ -85,6 +96,16 @@ export const notifyAll = async ({ title, message, type, link }) => {
         const notifications = users.map(u => ({ recipient: u._id, title, message, type, link }));
         if (notifications.length > 0) {
             await Notification.insertMany(notifications);
+
+            // Trigger push for everyone
+            await Promise.allSettled(
+                users.map(u => sendPush(u._id, {
+                    title,
+                    body: message,
+                    tag: type || 'bloom-notif',
+                    data: { url: link || '/' }
+                }))
+            );
         }
     } catch (err) {
         console.error('Notify All Error:', err);
