@@ -171,9 +171,9 @@ export default function InvoicePage() {
                                 <span className="text-muted">Tax (0%)</span>
                                 <span className="fw-bold text-dark">{formatPrice(0)}</span>
                             </div>
-                            <div className="d-flex justify-content-between pt-3" style={{ borderTop: '2px solid var(--rose)' }}>
-                                <h5 className="mb-0 fw-bold" style={{ color: 'var(--text-dark)' }}>Total Amount</h5>
-                                <h4 className="mb-0 fw-bold" style={{ color: 'var(--rose)' }}>{formatPrice(order.totalAmount)}</h4>
+                            <div className="d-flex justify-content-between pt-3 align-items-center" style={{ borderTop: '2px solid var(--rose)' }}>
+                                <h4 className="mb-0 fw-bold" style={{ color: 'var(--text-dark)' }}>Total Amount</h4>
+                                <h3 className="mb-0 fw-bold" style={{ color: 'var(--rose)' }}>{formatPrice(order.totalAmount)}</h3>
                             </div>
                         </div>
                     </div>
@@ -195,12 +195,57 @@ export default function InvoicePage() {
             </div>
 
             <style>{`
-        @media print {
-          body { background: white !important; }
-          .invoice-wrapper { padding: 0 !important; }
-          .invoice-container { box-shadow: none !important; border: 1px solid #eee; margin: 0 !important; max-width: 100% !important; border-radius: 0 !important; }
-          .d-print-none { display: none !important; }
+        @page {
+          size: A4;
+          margin: 0;
         }
+        @media print {
+          html, body { 
+            width: 210mm;
+            height: 297mm;
+            margin: 0 !important; 
+            padding: 0 !important;
+            background: white !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+          }
+          .container {
+            width: 100% !important;
+            max-width: 100% !important;
+            padding: 0 !important;
+            margin: 0 !important;
+          }
+          .invoice-wrapper { 
+            padding: 0 !important; 
+            margin: 0 !important;
+          }
+          .invoice-container { 
+            box-shadow: none !important; 
+            border: none !important; 
+            margin: 0 !important; 
+            width: 100% !important; 
+            max-width: 100% !important; 
+            padding: 10mm !important; /* Minimal internal padding for content safety */
+            border-radius: 0 !important;
+            min-height: 297mm;
+          }
+          .d-print-none { 
+            display: none !important; 
+          }
+          
+          /* Smaller fonts for compact A4 fit */
+          h1 { font-size: 1.5rem !important; }
+          h2 { font-size: 1.3rem !important; }
+          h3 { font-size: 1.1rem !important; }
+          h4 { font-size: 0.95rem !important; }
+          p, td, th, span, div { font-size: 0.8rem !important; }
+          
+          .table th { padding: 6px !important; background: var(--blush-light) !important; }
+          .table td { padding: 4px !important; }
+          
+          .table, .row, .p-3 { page-break-inside: avoid; }
+        }
+        
         .status-badge {
           padding: 2px 8px;
           border-radius: 12px;
