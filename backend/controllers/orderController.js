@@ -182,3 +182,19 @@ export const updateOrderStatus = async (req, res) => {
     res.json(order);
   } catch (err) { res.status(500).json({ message: err.message }); }
 };
+
+export const getOrderById = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id).populate('customer', '_id name phone email');
+    if (!order) return res.status(404).json({ message: `Order not found: ${req.params.id}` });
+
+    const customerId = order.customer?._id?.toString() || order.customer?.toString();
+    const isAdmin = req.user.role === 'admin';
+    if (!isAdmin && customerId !== req.user._id.toString()) {
+      return res.status(403).json({ message: 'Access denied: You do not have permission to view this invoice' });
+    }
+
+    res.json(order);
+  } catch (err) { res.status(500).json({ message: err.message }); }
+};
+

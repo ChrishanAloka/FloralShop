@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { orderService } from '../services/orderService';
 import { useConfig } from '../context/ConfigContext';
 import { formatDate, ORDER_STEPS, STATUS_LABELS } from '../utils/helpers';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate, Link } from 'react-router-dom';
 import { Icon } from '../components/common/Icons';
 import { COUNTRY_CODES } from '../utils/countryCodes';
 import api from '../services/api';
@@ -279,10 +279,15 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            <div className="mt-2" style={{ fontSize: '0.82rem', color: 'var(--text-mid)' }}>
-              {order.orderType === 'standard'
-                ? order.items.map(i => `${i.name} ×${i.quantity}`).join(', ')
-                : `Custom bouquet: ${order.customBouquet?.flowers?.reduce((s, f) => s + f.quantity, 0)} stems + ${order.customBouquet?.wrapper?.name || 'wrapper'}`}
+            <div className="mt-2" style={{ fontSize: '0.82rem', color: 'var(--text-mid)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                {order.orderType === 'standard'
+                  ? order.items.map(i => `${i.name} ×${i.quantity}`).join(', ')
+                  : `Custom bouquet: ${order.customBouquet?.flowers?.reduce((s, f) => s + f.quantity, 0)} stems + ${order.customBouquet?.wrapper?.name || 'wrapper'}`}
+              </div>
+              <Link to={`/invoice/${order._id}`} className="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1" style={{ fontSize: '0.75rem', borderRadius: '20px', padding: '0.1rem 0.6rem' }}>
+                <Icon.Download size={12} /> Invoice
+              </Link>
             </div>
 
             {order.status !== 'cancelled' && <OrderTimeline status={order.status} />}

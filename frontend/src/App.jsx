@@ -14,6 +14,7 @@ import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
 import NotificationsPage from './pages/NotificationsPage';
 import AdminPage from './pages/AdminPage';
+import InvoicePage from './pages/InvoicePage';
 
 function Layout({ children }) {
   return (
@@ -39,6 +40,9 @@ export default function App() {
               <Routes>
                 {/* Admin routes — no shared navbar */}
                 <Route path="/admin/*" element={<AdminLayout />} />
+
+                {/* Invoice route — no shared navbar for cleaner print */}
+                <Route path="/invoice/:orderId" element={<InvoicePage />} />
 
                 {/* Main site routes */}
                 <Route path="/*" element={

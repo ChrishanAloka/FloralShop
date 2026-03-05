@@ -53,9 +53,9 @@ mongoose.connect(process.env.MONGO_URI)
     app.listen(process.env.PORT || 5000, () => {
       console.log(`🌸 Server on port ${process.env.PORT || 5000}`);
 
-      // Initialize Cron Job: Every 5 minutes
+      // Initialize Cron Job: Every 5 minutes to remind users of unread notifications
       cron.schedule('*/5 * * * *', () => {
-        console.log('Running 5-minute unread notification reminder...');
+        console.log(`[${new Date().toLocaleTimeString()}] Running 5-minute unread notification reminder...`);
         sendUnreadReminders();
       });
     });

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { orderService } from '../../services/orderService';
+import { Link } from 'react-router-dom';
 import { useConfig } from '../../context/ConfigContext';
 import { formatDate, STATUS_LABELS } from '../../utils/helpers';
 import { Icon } from '../common/Icons';
@@ -115,6 +116,11 @@ export default function AdminOrders() {
                     Note: {order.deliveryNote}
                   </div>
                 )}
+                <div className="mt-3">
+                  <Link to={`/invoice/${order._id}`} className="btn btn-sm btn-outline-primary d-flex align-items-center gap-1 w-100 justify-content-center" style={{ borderRadius: '20px', fontSize: '0.8rem' }}>
+                    <Icon.Download size={14} /> View / Print Invoice
+                  </Link>
+                </div>
               </div>
 
               {order.status !== 'delivered' && order.status !== 'cancelled' && (
